@@ -38,9 +38,18 @@ async function initializeData() {
       fetchJson("./data/urban-map-periods.json?v=20260723-8"),
       fetchJson("./data/archive-sources.json?v=20260723-8"),
     ]);
+    const urbanPeriods = (urbanMaps.periods || []).map((period) => period.id === "1912-sanborn"
+      ? {
+          ...period,
+          overlay: {
+            ...period.overlay,
+            url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sanborn_Fire_Insurance_Map_from_Key_West%2C_Monroe_County%2C_Florida%2C_1912%2C_Plate_0001.jpg?width=1920",
+          },
+        }
+      : period);
     manifest.periods = [
       ...manifest.periods,
-      ...(urbanMaps.periods || []),
+      ...urbanPeriods,
       ...(archiveAerials.periods || []),
     ];
     state.manifest = manifest;
