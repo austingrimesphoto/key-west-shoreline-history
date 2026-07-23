@@ -1,0 +1,14 @@
+.DS_Store
+.idea/
+.vscode/
+working/
+*.qgz~
+*.aux.xml
+*.ovr
+*.tfw
+*.tif
+*.tiff
+*.jp2
+*.sid
+*.zip
+!key-west-shoreline-history-starter.zip

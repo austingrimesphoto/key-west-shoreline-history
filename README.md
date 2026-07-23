@@ -1,27 +1,27 @@
 # Key West: The Island That Grew
 
-A public, evidence-based historical GIS project showing how Key West changed through shoreline modification, land reclamation, the Florida East Coast Railway terminal at Trumbo Point, wartime naval development, and postwar expansion.
+A public, evidence-based historical GIS showing how Key West changed through shoreline modification, land reclamation, the Florida East Coast Railway terminal at Trumbo Point, wartime naval development, and postwar expansion.
 
-## Current state
+## Working release
 
-This repository is a complete deployable **research scaffold**, not a finished historical reconstruction.
+This is now a functional historical research map rather than an empty UI scaffold.
 
 It includes:
 
-- a responsive MapLibre timeline interface;
-- eight target periods from the earliest Coast Survey through the present;
-- dedicated Trumbo Point and Overseas Railway story stages;
-- a documented source catalog;
-- GeoJSON layer contracts for historical land, newly added land, and railway geometry;
-- a validation script and GitHub Actions gate;
-- Netlify configuration;
-- an explicit rule against invented coastlines.
+- an eight-period evidence-backed timeline from 1859 through the modern shoreline;
+- a georeferenced 1907 harbor-chart overlay with opacity control;
+- exact NOAA survey-project coverage envelopes for 1904, 1912, 1957, and 2016;
+- a live request to NOAA’s CUSP modern shoreline ArcGIS service;
+- whole-island and Trumbo Point map views;
+- explicit source cards and uncertainty labels;
+- an archival preview of the public-domain 1859 Coast Survey chart;
+- empty, evidence-gated historical land/fill/rail layers ready for actual vectors;
+- automated validation and smoke testing;
+- Netlify configuration.
 
-All historical GeoJSON files intentionally begin empty. Geometry is published only after it is tied to source evidence and reviewed.
+The map does **not** draw an imagined early coastline. Survey coverage polygons are visibly labeled as metadata envelopes, not shoreline.
 
 ## Run locally
-
-Because this is a static site, any local web server works:
 
 ```bash
 python3 -m http.server 8000
@@ -29,64 +29,46 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000`.
 
-Do not open `index.html` directly from Finder; browser security rules may block local JSON loading.
+The basemap, NOAA CUSP line, historical raster tiles, and archival preview require internet access.
+
+## Validate
+
+```bash
+python3 scripts/validate_geojson.py
+python3 scripts/smoke_test.py
+node --check assets/app.js
+```
 
 ## Publish the public GitHub repository
-
-From the project directory:
 
 ```bash
 chmod +x scripts/publish-to-github.sh
 ./scripts/publish-to-github.sh
 ```
 
-The script creates or updates:
+Target repository:
 
 `https://github.com/austingrimesphoto/key-west-shoreline-history`
 
-It requires GitHub CLI:
-
-```bash
-brew install gh
-gh auth login
-```
-
 ## Deploy to Netlify
 
-1. In Netlify, choose **Add new project → Import an existing project**.
-2. Select the GitHub repository.
+1. Choose **Add new project → Import an existing project**.
+2. Select `key-west-shoreline-history`.
 3. Leave the build command blank.
-4. Set the publish directory to `.`.
+4. Use `.` as the publish directory.
 5. Publish.
 
-`netlify.toml` already records the publish directory and basic headers.
+## Project documentation
 
-## Validate GIS layers
-
-```bash
-python3 scripts/validate_geojson.py
-```
-
-The validator checks:
-
-- expected geometry type for each layer;
-- required provenance and confidence fields;
-- finite coordinates;
-- a broad Key West geographic envelope.
-
-## Data workflow
-
-Read these before adding geometry:
-
+- [`docs/IMPLEMENTATION_STATUS.md`](docs/IMPLEMENTATION_STATUS.md)
 - [`docs/DATA_METHOD.md`](docs/DATA_METHOD.md)
 - [`docs/SOURCE_LEDGER.md`](docs/SOURCE_LEDGER.md)
 - [`docs/PHASES.md`](docs/PHASES.md)
-- [`data/import/README.md`](data/import/README.md)
 
-## Basemap and attribution
+## Data honesty
 
-The application uses MapLibre GL JS with OpenFreeMap’s Liberty style and OpenStreetMap-derived data. Historical datasets and images retain their own source and rights statements.
+The current execution environment could access authoritative metadata pages and remote map services but could not download NOAA’s binary shoreline packages from NSDE. This release therefore publishes real survey extents and live services, while leaving the historical geometry empty until the actual vectors can be acquired.
 
 ## License
 
-Code is MIT licensed. Historical data, scans, photographs, and derived GIS layers may have different terms; see [`DATA_LICENSE.md`](DATA_LICENSE.md).
+Original code is MIT licensed. Historical data and imagery retain their source-specific terms; see [`DATA_LICENSE.md`](DATA_LICENSE.md).

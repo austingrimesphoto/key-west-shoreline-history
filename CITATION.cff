@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "Cite the project repository and the underlying historical sources."
+title: "Key West: The Island That Grew"
+type: software
+authors:
+  - family-names: "Grimes"
+    given-names: "Austin"
+year: 2026
+license: MIT
+repository-code: "https://github.com/austingrimesphoto/key-west-shoreline-history"
+abstract: "An evidence-based interactive historical GIS of Key West shoreline growth, land reclamation, Trumbo Point, and the Overseas Railway."
