@@ -30,15 +30,16 @@ function configureControls() {
 async function initializeData() {
   try {
     $("availability-note").textContent = "Loading locally stored historical map states…";
-    const [manifest, sources, coverage, archiveAerials] = await Promise.all([
-      fetchJson("./data/periods.json"),
-      fetchJson("./data/sources.json"),
-      fetchJson("./data/survey-coverage.geojson"),
-      fetchJson("./data/archive-aerial-periods.json"),
+    const [manifest, sources, coverage, archiveAerials, archiveSources] = await Promise.all([
+      fetchJson("./data/periods.json?v=20260723-7"),
+      fetchJson("./data/sources.json?v=20260723-7"),
+      fetchJson("./data/survey-coverage.geojson?v=20260723-7"),
+      fetchJson("./data/archive-aerial-periods.json?v=20260723-7"),
+      fetchJson("./data/archive-sources.json?v=20260723-7"),
     ]);
     manifest.periods = [...manifest.periods, ...(archiveAerials.periods || [])];
     state.manifest = manifest;
-    state.sources = sources.sources;
+    state.sources = [...sources.sources, ...(archiveSources.sources || [])];
     state.coverage = coverage;
     state.aerialDiscovery = { status: "legacy-only", years: 0, frames: 0 };
     buildSourceCatalog();
