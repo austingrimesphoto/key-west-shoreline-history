@@ -29,4 +29,9 @@ jobs:
         run: |
           node --check assets/period-utils.js
           node --check assets/app.js
+          node --check assets/app-core.js
+          node --check assets/app-periods.js
+          node --check assets/app-map.js
+          node --check assets/app-init.js
           node --check netlify/functions/noaa-aerial-catalog.mjs
+          node --check netlify/functions/historical-image.mjs
