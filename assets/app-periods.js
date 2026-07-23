@@ -128,25 +128,38 @@ function buildTimeline() {
   const note = $("availability-note");
   const status = $("aerial-status");
   const retry = $("retry-aerials");
-  retry.disabled = state.aerialDiscovery.status === "checking";
-  if (state.aerialDiscovery.status === "loaded") {
+  if (state.aerialDiscovery.status === "legacy-only") {
+    note.textContent = "NOAA's live Digital Coast mosaics contain no Lower Keys catalog frames for 1930–1980. The timeline now uses dated Florida archival aerial photographs; legacy NOAA film holdings are indexed separately through APOS and NARA.";
+    status.textContent = "No live mosaic coverage";
+    retry.hidden = true;
+  } else if (state.aerialDiscovery.status === "loaded") {
     note.textContent = `${state.aerialDiscovery.years} NOAA aerial years were verified (${state.aerialDiscovery.frames} catalog frames).`;
     status.textContent = `${state.aerialDiscovery.years} years loaded`;
+    retry.hidden = false;
+    retry.disabled = false;
     retry.textContent = "Refresh NOAA aerials";
   } else if (state.aerialDiscovery.status === "checking") {
     note.textContent = "The local historical maps are ready. NOAA is being checked for up to seven seconds.";
     status.textContent = "Checking (7-second limit)";
+    retry.hidden = false;
+    retry.disabled = true;
   } else if (state.aerialDiscovery.status === "empty") {
-    note.textContent = "NOAA's RGB, color-infrared, and single-band catalogs returned no historical frames for the Lower Keys search area and configured years.";
+    note.textContent = "NOAA's live imagery mosaics returned no historical Lower Keys frames. Dated Florida archival aerials remain available in the timeline.";
     status.textContent = "No matching frames";
+    retry.hidden = false;
+    retry.disabled = false;
     retry.textContent = "Check NOAA again";
   } else if (state.aerialDiscovery.status === "unavailable") {
     note.textContent = `NOAA aerial discovery is unavailable: ${state.aerialDiscovery.error || "request failed"}. All local map states remain usable.`;
     status.textContent = "Unavailable";
+    retry.hidden = false;
+    retry.disabled = false;
     retry.textContent = "Retry NOAA";
   } else {
     note.textContent = "Historical overlays are loaded locally. NOAA aerial discovery is optional.";
     status.textContent = "Not checked";
+    retry.hidden = false;
+    retry.disabled = false;
     retry.textContent = "Check NOAA aerials";
   }
   updatePeriodButtons();
