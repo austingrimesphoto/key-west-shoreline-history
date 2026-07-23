@@ -1,6 +1,54 @@
 {
   "sources": [
     {
+      "id": "loc-sanborn-1889-edition",
+      "title": "Sanborn Fire Insurance Map from Key West, April 1889",
+      "institution": "Library of Congress Geography and Map Division",
+      "coverage": "Key West; 16 sheets; April 1889",
+      "use": "Pre-rail urban grid, waterfront, wharves, industrial uses, and shoreline context. Public domain.",
+      "url": "https://www.loc.gov/item/sanborn01291_001/"
+    },
+    {
+      "id": "loc-sanborn-1892-edition",
+      "title": "Sanborn Fire Insurance Map from Key West, April 1892",
+      "institution": "Library of Congress Geography and Map Division",
+      "coverage": "Key West; 23 sheets; April 1892",
+      "use": "Close-spaced late-nineteenth-century comparison of blocks, waterfront structures, and industrial development. Public domain.",
+      "url": "https://www.loc.gov/item/sanborn01291_002/"
+    },
+    {
+      "id": "loc-sanborn-1899-edition",
+      "title": "Sanborn Fire Insurance Map from Key West, April 1899",
+      "institution": "Library of Congress Geography and Map Division",
+      "coverage": "Key West; 24 sheets; April 1899",
+      "use": "Primary pre-Overseas-Railway urban and waterfront baseline. Public domain.",
+      "url": "https://www.loc.gov/item/sanborn01291_003/"
+    },
+    {
+      "id": "loc-sanborn-1912-edition",
+      "title": "Sanborn Fire Insurance Map from Key West, April 1912",
+      "institution": "Library of Congress Geography and Map Division",
+      "coverage": "Key West; 33 sheets; April 1912",
+      "use": "First-railway-year urban record and priority source for Trumbo terminal, depot, wharf, and industrial reconstruction. Public domain.",
+      "url": "https://www.loc.gov/item/sanborn01291_004/"
+    },
+    {
+      "id": "admiralty-florida-strait-1890",
+      "title": "Admiralty Chart No. 1217, Florida Strait South Part",
+      "institution": "British Admiralty / Wikimedia Commons",
+      "coverage": "Florida Strait, Keys, Cuba, and approaches; published 1890 with later corrections",
+      "use": "Regional navigation and reef context; candidate for a later controlled overlay rather than a city-scale shoreline layer.",
+      "url": "https://commons.wikimedia.org/wiki/File:Admiralty_Chart_No_1217_Florida_Strait_South_Part,_Published_1890,_Corrections_to_1927.jpg"
+    },
+    {
+      "id": "usace-key-west-harbor-1913",
+      "title": "Harbor of Refuge, Key West, Florida",
+      "institution": "U.S. Army Corps of Engineers / U.S. Congress",
+      "coverage": "Key West Harbor and engineering works; 1913",
+      "use": "Post-rail harbor engineering, breakwater, channel, and proposed-basin context; priority georeferencing candidate.",
+      "url": "https://www.geographicus.com/P/AntiqueMap/keywest-slattery-1913"
+    },
+    {
       "id": "usn-boca-chica-1940s",
       "title": "NAS Key West Boca Chica Field aerial, 1940s",
       "institution": "U.S. Navy / Wikimedia Commons",
