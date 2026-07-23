@@ -1,17 +1,17 @@
 name: Install working historical GIS release
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - ".bootstrap/project-v2.tar.gz.b64"
-      - ".github/workflows/install-working-release.yml"
+  workflow_dispatch:
+  issues:
+    types: [opened]
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   install:
+    if: github.event_name == 'workflow_dispatch' || github.event.issue.title == 'Install working historical GIS release'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,5 +28,8 @@ jobs:
           git add -A
           git commit -m "Install working Key West historical GIS release"
           git push
-
-# Triggered after workflow registration so GitHub Actions processes the payload.
+      - name: Close trigger issue
+        if: github.event_name == 'issues'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue close "${{ github.event.issue.number }}" --comment "Working historical GIS release installed."
