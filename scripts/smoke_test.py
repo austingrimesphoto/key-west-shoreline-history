@@ -17,11 +17,15 @@ def fail(message: str) -> None:
 
 manifest = json.loads((ROOT / "data/periods.json").read_text(encoding="utf-8"))
 archive_aerials = json.loads((ROOT / "data/archive-aerial-periods.json").read_text(encoding="utf-8"))
+archive_sources = json.loads((ROOT / "data/archive-sources.json").read_text(encoding="utf-8"))
 periods = [*manifest["periods"], *archive_aerials.get("periods", [])]
 milestones = manifest["milestones"]
 archive_maps = manifest.get("archiveMaps", [])
 aerial = manifest["aerialDiscovery"]
-sources = json.loads((ROOT / "data/sources.json").read_text(encoding="utf-8"))["sources"]
+sources = [
+    *json.loads((ROOT / "data/sources.json").read_text(encoding="utf-8"))["sources"],
+    *archive_sources.get("sources", []),
+]
 coverage = json.loads((ROOT / "data/survey-coverage.geojson").read_text(encoding="utf-8"))
 
 source_ids = {item["id"] for item in sources}
@@ -56,8 +60,10 @@ for period in periods:
         if not isinstance(coordinates, list) or len(coordinates) != 4:
             fail(f"{period['id']}: image overlay must contain four corner coordinates")
         image_url = str(overlay.get("url", ""))
-        if not (image_url.startswith("https://") or image_url.startswith("/.netlify/functions/historical-image")):
-            fail(f"{period['id']}: image overlay requires an HTTPS source or approved same-origin proxy")
+        if not image_url.startswith("https://"):
+            fail(f"{period['id']}: image overlay must load from a direct HTTPS image URL")
+        if "floridamemory.com/fpc/" in image_url or "/.netlify/functions/historical-image" in image_url:
+            fail(f"{period['id']}: blocked Florida Memory image proxy must not be used")
     for source_id in period.get("sourceIds", []):
         if source_id not in source_ids:
             fail(f"{period['id']}: unknown source {source_id}")
@@ -106,13 +112,13 @@ contracts = {
     "LOWER_KEYS_BOUNDS": app,
     "APP_MAX_BOUNDS": app,
     'status: "legacy-only"': app,
-    "archive-aerial-periods.json": app,
+    "archive-aerial-periods.json?v=20260723-7": app,
+    "archive-sources.json?v=20260723-7": app,
     'overlay.type === "image"': app,
     "setCoordinates": app,
     "adjustAlignment": app,
     "alignment-controls": index,
     "retry-aerials": index,
-    "app-core.js?v=20260723-5": index,
     ">Lower Keys<": index,
     "Loading historical map states": index,
     "Early maps": index,
@@ -133,6 +139,8 @@ if "function selectPeriod(index, updateUrl = true, refit = false)" not in app:
     fail("Period selection must preserve the current Lower Keys camera by default")
 if "fit(LOWER_KEYS_BOUNDS, 0)" not in app:
     fail("Map startup must fit the Lower Keys viewport")
+if (ROOT / "netlify/functions/historical-image.mjs").exists():
+    fail("Blocked historical-image proxy must be removed")
 
 noaa_proxy = ROOT / "netlify/functions/noaa-aerial-catalog.mjs"
 if not noaa_proxy.exists():
@@ -142,17 +150,9 @@ for required in ("3Band_RGB_8Bit_Imagery", "3Band_CIR_8Bit_Imagery", "IR_Band_8B
     if required not in noaa_proxy_text:
         fail(f"NOAA multi-catalog proxy contract missing: {required}")
 
-historical_proxy = ROOT / "netlify/functions/historical-image.mjs"
-if not historical_proxy.exists():
-    fail("Historical image proxy function is missing")
-historical_proxy_text = historical_proxy.read_text(encoding="utf-8")
-for required in ("key-west-1954", "key-west-1956", "floridamemory.com"):
-    if required not in historical_proxy_text:
-        fail(f"Historical image proxy contract missing: {required}")
-
 print(
     "Smoke test passed: "
     f"{len(periods)} fixed states ({approximate_count} adjustable historical images), "
-    "NOAA live mosaics treated as a documented coverage gap, "
+    "direct archival image URLs, NOAA live mosaics treated as a documented coverage gap, "
     f"{len(milestones)} unmapped milestones, {len(archive_maps)} archive records, {len(sources)} sources."
 )
