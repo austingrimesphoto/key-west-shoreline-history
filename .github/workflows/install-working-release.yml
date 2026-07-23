@@ -28,3 +28,5 @@ jobs:
           git add -A
           git commit -m "Install working Key West historical GIS release"
           git push
+
+# Triggered after workflow registration so GitHub Actions processes the payload.
