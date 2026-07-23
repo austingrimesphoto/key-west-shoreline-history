@@ -83,8 +83,14 @@ for item in archive_maps:
 
 if aerial.get("sourceId") not in source_ids:
     fail("Aerial discovery references an unknown source")
-if not str(aerial.get("service", "")).startswith("https://imagery.coast.noaa.gov/"):
-    fail("Aerial discovery must use the official NOAA imagery service")
+catalog_services = aerial.get("catalogServices", [])
+if len(catalog_services) < 3:
+    fail("Aerial discovery must query RGB, CIR, and single-band NOAA catalogs")
+for catalog in catalog_services:
+    if not str(catalog.get("service", "")).startswith("https://imagery.coast.noaa.gov/"):
+        fail("Every aerial catalog must use an official NOAA imagery service")
+if manifest.get("aerialBounds") != aerial.get("bounds"):
+    fail("Aerial discovery bounds must match the Lower Keys manifest bounds")
 if aerial.get("catalogProxy") != "/.netlify/functions/noaa-aerial-catalog":
     fail("Aerial discovery must use the same-origin Netlify proxy")
 
@@ -96,13 +102,16 @@ index = (ROOT / "index.html").read_text(encoding="utf-8")
 contracts = {
     "refreshAerialPeriods": app,
     "timeoutMs: 7000": app,
+    "LOWER_KEYS_BOUNDS": app,
+    "APP_MAX_BOUNDS": app,
     'status: "unavailable"': app,
     'overlay.type === "image"': app,
     "setCoordinates": app,
     "adjustAlignment": app,
     "alignment-controls": index,
     "retry-aerials": index,
-    "app-core.js?v=20260723-4": index,
+    "app-core.js?v=20260723-5": index,
+    ">Lower Keys<": index,
     "Loading historical map states": index,
     "Early maps": index,
 }
@@ -114,8 +123,19 @@ if "Checking available map evidence" in index:
     fail("The static page must not imply that NOAA blocks map startup")
 if "fetchJsonCandidates" in app:
     fail("Production NOAA discovery must not fall back to a cross-origin browser request")
-if not (ROOT / "netlify/functions/noaa-aerial-catalog.mjs").exists():
+if "fit(period?.focusBounds" in app or "fit(period.focusBounds" in app:
+    fail("Changing periods must not fit the camera to regional source extents")
+if "function selectPeriod(index, updateUrl = true, refit = false)" not in app:
+    fail("Period selection must preserve the current Lower Keys camera by default")
+if "fit(LOWER_KEYS_BOUNDS, 0)" not in app:
+    fail("Map startup must fit the Lower Keys viewport")
+proxy = ROOT / "netlify/functions/noaa-aerial-catalog.mjs"
+if not proxy.exists():
     fail("NOAA aerial proxy function is missing")
+proxy_text = proxy.read_text(encoding="utf-8")
+for required in ("3Band_RGB_8Bit_Imagery", "3Band_CIR_8Bit_Imagery", "IR_Band_8Bit_Imagery", "Promise.allSettled"):
+    if required not in proxy_text:
+        fail(f"NOAA multi-catalog proxy contract missing: {required}")
 
 print(
     "Smoke test passed: "

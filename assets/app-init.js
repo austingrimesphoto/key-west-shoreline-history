@@ -12,7 +12,7 @@ function configureControls() {
   $("evidence-opacity").addEventListener("input", (event) => setEvidenceOpacity(event.target.value));
   $("retry-aerials").addEventListener("click", refreshAerialPeriods);
   document.querySelectorAll("[data-align-action]").forEach((button) => button.addEventListener("click", () => adjustAlignment(button.dataset.alignAction)));
-  $("reset-view").addEventListener("click", () => fit(studyFitBounds()));
+  $("reset-view").addEventListener("click", () => fit(LOWER_KEYS_BOUNDS));
   $("focus-trumbo").addEventListener("click", () => fit(TRUMBO_BOUNDS));
   const dialog = $("about-dialog");
   $("open-about").addEventListener("click", () => dialog.showModal());
@@ -68,6 +68,7 @@ function startMap(dataReady) {
     zoom: 12,
     minZoom: 2,
     maxZoom: 18,
+    maxBounds: APP_MAX_BOUNDS,
     attributionControl: true,
     maplibreLogo: true,
   });
@@ -80,8 +81,7 @@ function startMap(dataReady) {
     if (!state.manifest || !state.coverage) return;
     installBaseLayers();
     renderPeriod();
-    const period = state.periods[state.index];
-    fit(period?.focusBounds || studyFitBounds(), 0);
+    fit(LOWER_KEYS_BOUNDS, 0);
     installCuspLayer();
   });
   map.on("error", (event) => {

@@ -5,6 +5,8 @@ const periodUtils = window.KeyWestPeriodUtils;
 if (!periodUtils) throw new Error("Period utilities failed to load.");
 
 const TRUMBO_BOUNDS = [[-81.814, 24.543], [-81.770, 24.571]];
+const LOWER_KEYS_BOUNDS = [[-82.15, 24.30], [-80.95, 24.90]];
+const APP_MAX_BOUNDS = [[-105, 4], [-55, 36.5]];
 const BASE_STYLE = "https://tiles.openfreemap.org/styles/liberty";
 const CUSP_QUERY_URL =
   "https://services.arcgis.com/rD2ylXRs80UroD90/ArcGIS/rest/services/NOAA_Coastal_Shoreline/FeatureServer/0/query" +
@@ -172,7 +174,7 @@ function buildArchiveMaps() {
 
 function aerialProxyUrl(config) {
   if (!config.catalogProxy) return null;
-  const [west, south, east, north] = state.manifest.studyBounds;
+  const [west, south, east, north] = config.bounds || state.manifest.aerialBounds || state.manifest.studyBounds;
   const params = new URLSearchParams({ west, south, east, north, yearMin: config.yearMin, yearMax: config.yearMax });
   return `${config.catalogProxy}?${params.toString()}`;
 }
