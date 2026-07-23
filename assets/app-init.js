@@ -10,7 +10,8 @@ function configureControls() {
   $("toggle-modern-shoreline").addEventListener("change", updateLayerVisibility);
   $("toggle-coverage").addEventListener("change", updateLayerVisibility);
   $("evidence-opacity").addEventListener("input", (event) => setEvidenceOpacity(event.target.value));
-  $("retry-aerials").addEventListener("click", refreshAerialPeriods);
+  const retryAerials = $("retry-aerials");
+  if (retryAerials) retryAerials.hidden = true;
   document.querySelectorAll("[data-align-action]").forEach((button) => button.addEventListener("click", () => adjustAlignment(button.dataset.alignAction)));
   $("reset-view").addEventListener("click", () => fit(LOWER_KEYS_BOUNDS));
   $("focus-trumbo").addEventListener("click", () => fit(TRUMBO_BOUNDS));
@@ -29,14 +30,17 @@ function configureControls() {
 async function initializeData() {
   try {
     $("availability-note").textContent = "Loading locally stored historical map states…";
-    const [manifest, sources, coverage] = await Promise.all([
+    const [manifest, sources, coverage, archiveAerials] = await Promise.all([
       fetchJson("./data/periods.json"),
       fetchJson("./data/sources.json"),
       fetchJson("./data/survey-coverage.geojson"),
+      fetchJson("./data/archive-aerial-periods.json"),
     ]);
+    manifest.periods = [...manifest.periods, ...(archiveAerials.periods || [])];
     state.manifest = manifest;
     state.sources = sources.sources;
     state.coverage = coverage;
+    state.aerialDiscovery = { status: "legacy-only", years: 0, frames: 0 };
     buildSourceCatalog();
     buildMilestones();
     buildArchiveMaps();
@@ -45,7 +49,6 @@ async function initializeData() {
     const requested = new URL(window.location.href).searchParams.get("period");
     const requestedIndex = state.periods.findIndex((period) => period.id === requested);
     selectPeriod(requestedIndex >= 0 ? requestedIndex : 0, false, false);
-    window.setTimeout(refreshAerialPeriods, 250);
   } catch (error) {
     $("period-title").textContent = "Project manifest unavailable";
     $("period-summary").textContent = error.message;
