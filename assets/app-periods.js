@@ -1,41 +1,59 @@
 "use strict";
 
 function aerialPeriodFromGroup(year, records, config) {
-  const objectIds = [...new Set(records.map((record) => Number(record.OBJECTID)).filter(Number.isFinite))]
+  const byService = new Map();
+  for (const record of records) {
+    const service = record.ServiceUrl || config.service;
+    if (!service) continue;
+    if (!byService.has(service)) byService.set(service, []);
+    byService.get(service).push(record);
+  }
+  const candidates = [...byService.entries()].map(([service, serviceRecords]) => ({
+    service,
+    records: serviceRecords,
+    priority: Math.min(...serviceRecords.map((record) => Number(record.ServicePriority) || 99)),
+    label: serviceRecords.find((record) => record.ServiceLabel)?.ServiceLabel || "NOAA imagery",
+    id: serviceRecords.find((record) => record.ServiceId)?.ServiceId || "imagery",
+  })).sort((a, b) => b.records.length - a.records.length || a.priority - b.priority);
+  const selected = candidates[0];
+  if (!selected) return null;
+  const objectIds = [...new Set(selected.records.map((record) => Number(record.OBJECTID)).filter(Number.isFinite))]
     .slice(0, config.maxRasterIdsPerYear);
-  const missions = [...new Set(records.map((record) => record.Mission).filter((value) => value !== null && value !== undefined))];
-  const sensors = [...new Set(records.map((record) => record.Sensor).filter(Boolean))];
-  const resolutions = records.map((record) => Number(record.Resolution)).filter((value) => Number.isFinite(value) && value > 0);
+  const missions = [...new Set(selected.records.map((record) => record.Mission).filter((value) => value !== null && value !== undefined))];
+  const sensors = [...new Set(selected.records.map((record) => record.Sensor).filter(Boolean))];
+  const resolutions = selected.records.map((record) => Number(record.Resolution)).filter((value) => Number.isFinite(value) && value > 0);
   const resolutionText = resolutions.length
     ? `${Math.min(...resolutions).toFixed(2)}–${Math.max(...resolutions).toFixed(2)} m listed resolution`
     : "Resolution varies by frame";
+  const bbox = config.bounds || state.manifest.aerialBounds || state.manifest.studyBounds;
   return {
     id: `aerial-${year}`,
     shortLabel: String(year),
     sortYear: year,
     kind: "aerial",
     kicker: "NOAA georeferenced historical aerial imagery",
-    title: `${year} aerial coverage of Key West`,
-    summary: `NOAA returned ${objectIds.length} distinct historical aerial frame${objectIds.length === 1 ? "" : "s"} from ${year} intersecting the Key West study area.`,
+    title: `${year} aerial coverage of the Lower Keys`,
+    summary: `NOAA returned ${objectIds.length} ${selected.label} historical aerial frame${objectIds.length === 1 ? "" : "s"} from ${year} intersecting the Lower Keys search area.`,
     confidenceLabel: "Georeferenced aerial",
     dataStatus: `${objectIds.length} NOAA frame${objectIds.length === 1 ? "" : "s"}`,
     evidenceCount: objectIds.length,
     highlights: [
+      `Selected NOAA catalog: ${selected.label}.`,
       missions.length ? `Catalog mission identifiers: ${missions.join(", ")}.` : "NOAA catalog mission metadata is incomplete for these frames.",
       sensors.length ? `Sensors represented: ${sensors.join(", ")}.` : "Sensor metadata is not listed for every frame.",
       `${resolutionText}. NOAA warns that these photographs are georeferenced but not orthorectified.`,
     ],
     sourceIds: [config.sourceId],
-    focusBounds: studyFitBounds(),
+    focusBounds: LOWER_KEYS_BOUNDS,
     overlay: {
       type: "arcgis-image",
-      identity: `${config.identityPrefix}-${year}`,
-      title: `${year} NOAA historical aerial mosaic`,
-      service: config.service,
+      identity: `${config.identityPrefix}-${year}-${selected.id}`,
+      title: `${year} NOAA ${selected.label} aerial mosaic`,
+      service: selected.service,
       rasterIds: objectIds,
-      bbox: state.manifest.studyBounds,
+      bbox,
       imageSize: config.imageSize,
-      attribution: `NOAA historical aerial imagery, ${year}`,
+      attribution: `NOAA historical aerial imagery, ${year} (${selected.label})`,
       defaultOpacity: 0.78,
     },
   };
@@ -45,9 +63,10 @@ async function discoverAerialPeriods(config) {
   const endpoint = aerialProxyUrl(config);
   if (!endpoint) throw new Error("The NOAA proxy is not configured for this deployment.");
   const data = await fetchJson(endpoint, { timeoutMs: 7000, cache: "no-cache" });
-  return periodUtils.groupAerialAttributes(data.features || [], config)
+  const periods = periodUtils.groupAerialAttributes(data.features || [], config)
     .map(([year, records]) => aerialPeriodFromGroup(year, records, config))
-    .filter((period) => period.overlay.rasterIds.length > 0);
+    .filter((period) => period && period.overlay.rasterIds.length > 0);
+  return periods;
 }
 
 function periodSortValue(period) {
@@ -118,7 +137,7 @@ function buildTimeline() {
     note.textContent = "The local historical maps are ready. NOAA is being checked for up to seven seconds.";
     status.textContent = "Checking (7-second limit)";
   } else if (state.aerialDiscovery.status === "empty") {
-    note.textContent = "NOAA responded, but returned no historical aerial frames in the configured years and Key West bounds.";
+    note.textContent = "NOAA's RGB, color-infrared, and single-band catalogs returned no historical frames for the Lower Keys search area and configured years.";
     status.textContent = "No matching frames";
     retry.textContent = "Check NOAA again";
   } else if (state.aerialDiscovery.status === "unavailable") {
@@ -141,7 +160,7 @@ function updatePeriodButtons() {
   });
 }
 
-function selectPeriod(index, updateUrl = true, refit = true) {
+function selectPeriod(index, updateUrl = true, refit = false) {
   state.index = Math.max(0, Math.min(index, state.periods.length - 1));
   $("period-slider").value = String(state.index);
   updatePeriodButtons();
@@ -152,5 +171,5 @@ function selectPeriod(index, updateUrl = true, refit = true) {
     history.replaceState({}, "", url);
   }
   renderPeriod();
-  if (refit && state.mapReady && period?.focusBounds) fit(period.focusBounds);
+  if (refit && state.mapReady) fit(LOWER_KEYS_BOUNDS);
 }
