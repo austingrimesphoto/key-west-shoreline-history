@@ -1,2 +1,3 @@
-2026-07-23.4
+2026-07-23.4-production
 Fixed historical states load locally; NOAA discovery is bounded and optional; experimental adjustable overlays added for 1639, 1755, 1787, and 1859.
+Production deployment trigger created through the GitHub contents API.
