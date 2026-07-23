@@ -1,0 +1,2 @@
+2026-07-23.4
+Fixed historical states load locally; NOAA discovery is bounded and optional; experimental adjustable overlays added for 1639, 1755, 1787, and 1859.
