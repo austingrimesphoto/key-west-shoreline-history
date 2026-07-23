@@ -1,0 +1,20 @@
+{
+  "sources": [
+    {
+      "id": "usn-boca-chica-1940s",
+      "title": "NAS Key West Boca Chica Field aerial, 1940s",
+      "institution": "U.S. Navy / Wikimedia Commons",
+      "coverage": "Boca Chica Field during the 1940s; published in Naval Aviation News, September 1947",
+      "use": "Public-domain wartime aviation landscape and Lower Keys development context.",
+      "url": "https://commons.wikimedia.org/wiki/File:NAS_Chica-Fla_NAN9-47.jpg"
+    },
+    {
+      "id": "keys-aerial-1950s",
+      "title": "Key West aerial near Bertha Street and Atlantic Boulevard",
+      "institution": "Florida Keys Public Libraries / Wikimedia Commons",
+      "coverage": "Key West southeastern shoreline, dated broadly to the 1950s; MM00009236",
+      "use": "Mid-century shoreline and urban-edge comparison; licensed CC BY 2.0.",
+      "url": "https://commons.wikimedia.org/wiki/File:Aerial_photographs_of_Florida_MM00009236_(8091489221).jpg"
+    }
+  ]
+}
