@@ -30,14 +30,19 @@ function configureControls() {
 async function initializeData() {
   try {
     $("availability-note").textContent = "Loading locally stored historical map states…";
-    const [manifest, sources, coverage, archiveAerials, archiveSources] = await Promise.all([
-      fetchJson("./data/periods.json?v=20260723-7"),
-      fetchJson("./data/sources.json?v=20260723-7"),
-      fetchJson("./data/survey-coverage.geojson?v=20260723-7"),
-      fetchJson("./data/archive-aerial-periods.json?v=20260723-7"),
-      fetchJson("./data/archive-sources.json?v=20260723-7"),
+    const [manifest, sources, coverage, archiveAerials, urbanMaps, archiveSources] = await Promise.all([
+      fetchJson("./data/periods.json?v=20260723-8"),
+      fetchJson("./data/sources.json?v=20260723-8"),
+      fetchJson("./data/survey-coverage.geojson?v=20260723-8"),
+      fetchJson("./data/archive-aerial-periods.json?v=20260723-8"),
+      fetchJson("./data/urban-map-periods.json?v=20260723-8"),
+      fetchJson("./data/archive-sources.json?v=20260723-8"),
     ]);
-    manifest.periods = [...manifest.periods, ...(archiveAerials.periods || [])];
+    manifest.periods = [
+      ...manifest.periods,
+      ...(urbanMaps.periods || []),
+      ...(archiveAerials.periods || []),
+    ];
     state.manifest = manifest;
     state.sources = [...sources.sources, ...(archiveSources.sources || [])];
     state.coverage = coverage;
