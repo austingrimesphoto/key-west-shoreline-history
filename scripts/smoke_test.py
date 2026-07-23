@@ -18,6 +18,7 @@ def fail(message: str) -> None:
 manifest = json.loads((ROOT / "data/periods.json").read_text(encoding="utf-8"))
 periods = manifest["periods"]
 milestones = manifest["milestones"]
+archive_maps = manifest.get("archiveMaps", [])
 aerial = manifest["aerialDiscovery"]
 sources = json.loads((ROOT / "data/sources.json").read_text(encoding="utf-8"))["sources"]
 coverage = json.loads((ROOT / "data/survey-coverage.geojson").read_text(encoding="utf-8"))
@@ -60,6 +61,15 @@ for milestone in milestones:
         if source_id not in source_ids:
             fail(f"milestone {milestone['id']}: unknown source {source_id}")
 
+archive_ids = [item.get("id") for item in archive_maps]
+if len(set(archive_ids)) != len(archive_ids):
+    fail("Archive map IDs must be unique")
+for item in archive_maps:
+    if item.get("sourceId") not in source_ids:
+        fail(f"archive map {item.get('id')}: unknown source {item.get('sourceId')}")
+    if not item.get("year") or not item.get("title") or not item.get("status"):
+        fail(f"archive map {item.get('id')}: incomplete metadata")
+
 if aerial.get("sourceId") not in source_ids:
     fail("Aerial discovery references an unknown source")
 if not str(aerial.get("service", "")).startswith("https://imagery.coast.noaa.gov/"):
@@ -68,8 +78,13 @@ if aerial.get("yearMin") >= aerial.get("yearMax"):
     fail("Aerial discovery year range is invalid")
 if not aerial.get("identityPrefix"):
     fail("Aerial discovery identity prefix is required")
+if aerial.get("catalogProxy") != "/.netlify/functions/noaa-aerial-catalog":
+    fail("Aerial discovery must use the same-origin Netlify proxy before direct NOAA fallback")
 
-app = (ROOT / "assets/app.js").read_text(encoding="utf-8")
+app = "\n".join(
+    (ROOT / "assets" / name).read_text(encoding="utf-8")
+    for name in ("app-core.js", "app-periods.js", "app-map.js", "app-init.js")
+)
 utils = (ROOT / "assets/period-utils.js").read_text(encoding="utf-8")
 index = (ROOT / "index.html").read_text(encoding="utf-8")
 contracts = {
@@ -79,18 +94,32 @@ contracts = {
     "buildArcGisExportUrl": app,
     "enforceDistinctMapStates": utils,
     "period-utils.js": index,
+    "app-core.js": index,
+    "app-periods.js": index,
+    "app-map.js": index,
+    "app-init.js": index,
     "CUSP_QUERY_URL": app,
     "verified map state": index.lower(),
     "milestone-list": index,
     "focus-trumbo": index,
+    "archive-map-list": index,
+    "buildArchiveMaps": app,
+    "fetchJsonCandidates": app,
+    "startMap(dataReady)": app,
+    "installBaseLayers();renderPeriod();installCuspLayer();": app,
 }
 for required, haystack in contracts.items():
     if required not in haystack:
         fail(f"Missing app contract: {required}")
 
+if "const discovered=await discoverAerialPeriods" in app:
+    fail("Optional NOAA aerial discovery must not block the fixed timeline")
+if not (ROOT / "netlify/functions/noaa-aerial-catalog.mjs").exists():
+    fail("NOAA aerial proxy function is missing")
+
 print(
     "Smoke test passed: "
     f"{len(periods)} fixed map states, dynamic NOAA aerial discovery, "
-    f"{len(milestones)} unmapped milestones, {len(sources)} sources, "
+    f"{len(milestones)} unmapped milestones, {len(archive_maps)} early archive maps, {len(sources)} sources, "
     f"{len(coverage['features'])} survey footprints."
 )

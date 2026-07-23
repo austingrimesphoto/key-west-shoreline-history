@@ -10,7 +10,7 @@ A selectable map state must have a unique spatial identity:
 2. **NOAA aerial years** — discovered at runtime from NOAA's historical-imagery ImageServer. The application queries the Key West study bounds, groups exact catalog records by `Year`, and constructs a locked raster mosaic from that year's returned `OBJECTID` values.
 3. **2016+ modern reference** — NOAA CUSP shoreline and the 2016 project-coverage envelope.
 
-If NOAA returns no exact aerial records for a year, that year does not appear. If the NOAA catalog is unavailable, no guessed aerial dates are inserted.
+The fixed 1907 and modern states render before NOAA aerial discovery begins. If NOAA returns no exact aerial records for a year, that year does not appear. If the NOAA catalog is unavailable, no guessed aerial dates are inserted and the existing map remains usable. On Netlify, the app tries a same-origin serverless proxy first to avoid browser CORS failures, then falls back to the official NOAA endpoint.
 
 ## Documented but unmapped milestones
 
@@ -41,8 +41,11 @@ within the Key West study bounds for primary catalog records dated 1944–1969. 
 
 NOAA describes this historical imagery as georeferenced but not orthorectified. It should be interpreted as visual historical evidence, not survey-grade positional truth.
 
-## Remaining major work
+## Early Spanish and colonial map program
 
+The archive catalog now includes sources from 1529, 1562, circa 1730, 1755, 1765, and 1787. Search and catalog terms include **Cayo Hueso**, **Los Mártires**, **Cayos de la Florida**, **Cayos del norte de La Habana**, and the **Canal Viejo de Bahama**. Broad Gulf and continental maps remain archive evidence until they receive reviewed control points; they are not stretched over Key West merely to create an old-looking overlay.
+
+## Remaining major work
 1. Acquire and import the actual 1904 and 1912 NOAA shoreline vectors.
 2. Georeference the 1859 Coast Survey chart with documented control and residuals.
 3. Derive period land polygons only after shoreline definitions are reconciled.

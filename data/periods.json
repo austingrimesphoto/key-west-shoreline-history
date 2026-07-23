@@ -1,1 +1,229 @@
-{"studyBounds":[-81.825,24.525,-81.69,24.615],"aerialDiscovery":{"sourceId":"noaa-historical-aerial-service","service":"https://imagery.coast.noaa.gov/arcgis/rest/services/Imagery/3Band_RGB_8Bit_Imagery/ImageServer","identityPrefix":"noaa-aerial","yearMin":1944,"yearMax":1969,"queryWhere":"Category = 1 AND Year >= 1944 AND Year <= 1969","outFields":"OBJECTID,Name,Mission,Year,Metalink,Resolution,Sensor,Horizontal_Accuracy,TideControlled","imageSize":[2400,1800],"maxRasterIdsPerYear":100},"periods":[{"id":"1907","shortLabel":"1907","kind":"chart","kicker":"Georeferenced historical chart","title":"Harbor immediately before the terminal fill","summary":"A 1907 Admiralty chart has been georeferenced in Wikimaps Warper and can be overlaid directly on the modern map. It is the earliest spatially registered evidence layer currently published in the project.","confidenceLabel":"5 control points","dataStatus":"Georeferenced chart","evidenceCount":1,"highlights":["Drag the evidence-opacity control to compare the 1907 shoreline and harbor with the modern basemap.","The chart is useful for broad interpretation but has only five published control points, so it is not treated as survey-grade geometry.","Trumbo’s large railway-terminal landfill does not yet dominate the northern waterfront."],"sourceIds":["warper-1907","admiralty-1907","navfac-trumbo"],"focusBounds":[[-81.82,24.535],[-81.755,24.585]],"overlay":{"type":"xyz","identity":"warper-1907","title":"1907 Admiralty harbor chart","tiles":["https://warper.wmflabs.org/maps/tile/4655/{z}/{x}/{y}.png"],"tileSize":256,"minzoom":8,"maxzoom":18,"attribution":"1907 Admiralty chart via Wikimaps Warper; 5 control points","defaultOpacity":0.72}},{"id":"2016","shortLabel":"2016+","kind":"modern","kicker":"High-resolution modern reference","title":"Modern Key West shoreline","summary":"NOAA’s FL1611-TB-N project used lidar and imagery collected April 14–25, 2016 to compile a high-resolution Key West shoreline. The map requests NOAA’s live CUSP shoreline service as a modern comparison line.","confidenceLabel":"NOAA reference","dataStatus":"Live shoreline service","evidenceCount":1,"highlights":["The 2016 NOAA project extent is displayed as metadata coverage.","The blue shoreline comes from NOAA’s CUSP ArcGIS service when that service is reachable.","CUSP is a mean-high-water proxy product and is not equivalent to NOAA’s higher-control National Shoreline."],"sourceIds":["noaa-modern-2016","noaa-cusp-service","noaa-nsde"],"coverageId":"noaa-2016-key-west","focusBounds":[[-81.825,24.525],[-81.69,24.615]],"overlay":{"type":"modern-line","identity":"noaa-cusp-modern","title":"NOAA modern shoreline","defaultOpacity":0.9}}],"milestones":[{"id":"1859","year":"1859","title":"Earliest detailed island-wide Coast Survey chart","status":"Archival source identified; not yet georeferenced for the interactive map.","sourceIds":["uscs-chart-1859"]},{"id":"1904","year":"1904","title":"NOAA western-end shoreline survey","status":"Authoritative survey metadata exists, but the actual shoreline vector has not yet been imported.","sourceIds":["noaa-western-end"]},{"id":"1912","year":"1912","title":"Trumbo terminal and first railway arrival","status":"Central historical milestone. It is intentionally not selectable until the 1912 NOAA shoreline vector is acquired.","sourceIds":["noaa-waterfront","kwahs-railway","navfac-trumbo"]},{"id":"1935","year":"1935","title":"End of direct Overseas Railway service","status":"Documented milestone; no distinct spatial layer is currently published.","sourceIds":["kwahs-railway","keys-history-center","uf-aerials"]}]}
+{
+  "studyBounds": [
+    -81.825,
+    24.525,
+    -81.69,
+    24.615
+  ],
+  "aerialDiscovery": {
+    "sourceId": "noaa-historical-aerial-service",
+    "service": "https://imagery.coast.noaa.gov/arcgis/rest/services/Imagery/3Band_RGB_8Bit_Imagery/ImageServer",
+    "identityPrefix": "noaa-aerial",
+    "yearMin": 1944,
+    "yearMax": 1969,
+    "queryWhere": "Category = 1 AND Year >= 1944 AND Year <= 1969",
+    "outFields": "OBJECTID,Name,Mission,Year,Metalink,Resolution,Sensor,Horizontal_Accuracy,TideControlled",
+    "imageSize": [
+      2400,
+      1800
+    ],
+    "maxRasterIdsPerYear": 100,
+    "catalogProxy": "/.netlify/functions/noaa-aerial-catalog"
+  },
+  "periods": [
+    {
+      "id": "1907",
+      "shortLabel": "1907",
+      "kind": "chart",
+      "kicker": "Georeferenced historical chart",
+      "title": "Harbor immediately before the terminal fill",
+      "summary": "A 1907 Admiralty chart has been georeferenced in Wikimaps Warper and can be overlaid directly on the modern map. It is the earliest spatially registered evidence layer currently published in the project.",
+      "confidenceLabel": "5 control points",
+      "dataStatus": "Georeferenced chart",
+      "evidenceCount": 1,
+      "highlights": [
+        "Drag the evidence-opacity control to compare the 1907 shoreline and harbor with the modern basemap.",
+        "The chart is useful for broad interpretation but has only five published control points, so it is not treated as survey-grade geometry.",
+        "Trumbo’s large railway-terminal landfill does not yet dominate the northern waterfront."
+      ],
+      "sourceIds": [
+        "warper-1907",
+        "admiralty-1907",
+        "navfac-trumbo"
+      ],
+      "focusBounds": [
+        [
+          -81.82,
+          24.535
+        ],
+        [
+          -81.755,
+          24.585
+        ]
+      ],
+      "overlay": {
+        "type": "xyz",
+        "identity": "warper-1907",
+        "title": "1907 Admiralty harbor chart",
+        "tiles": [
+          "https://warper.wmflabs.org/maps/tile/4655/{z}/{x}/{y}.png"
+        ],
+        "tileSize": 256,
+        "minzoom": 8,
+        "maxzoom": 18,
+        "attribution": "1907 Admiralty chart via Wikimaps Warper; 5 control points",
+        "defaultOpacity": 0.72
+      }
+    },
+    {
+      "id": "2016",
+      "shortLabel": "2016+",
+      "kind": "modern",
+      "kicker": "High-resolution modern reference",
+      "title": "Modern Key West shoreline",
+      "summary": "NOAA’s FL1611-TB-N project used lidar and imagery collected April 14–25, 2016 to compile a high-resolution Key West shoreline. The map requests NOAA’s live CUSP shoreline service as a modern comparison line.",
+      "confidenceLabel": "NOAA reference",
+      "dataStatus": "Live shoreline service",
+      "evidenceCount": 1,
+      "highlights": [
+        "The 2016 NOAA project extent is displayed as metadata coverage.",
+        "The blue shoreline comes from NOAA’s CUSP ArcGIS service when that service is reachable.",
+        "CUSP is a mean-high-water proxy product and is not equivalent to NOAA’s higher-control National Shoreline."
+      ],
+      "sourceIds": [
+        "noaa-modern-2016",
+        "noaa-cusp-service",
+        "noaa-nsde"
+      ],
+      "coverageId": "noaa-2016-key-west",
+      "focusBounds": [
+        [
+          -81.825,
+          24.525
+        ],
+        [
+          -81.69,
+          24.615
+        ]
+      ],
+      "overlay": {
+        "type": "modern-line",
+        "identity": "noaa-cusp-modern",
+        "title": "NOAA modern shoreline",
+        "defaultOpacity": 0.9
+      }
+    }
+  ],
+  "milestones": [
+    {
+      "id": "1859",
+      "year": "1859",
+      "title": "Earliest detailed island-wide Coast Survey chart",
+      "status": "Archival source identified; not yet georeferenced for the interactive map.",
+      "sourceIds": [
+        "uscs-chart-1859"
+      ]
+    },
+    {
+      "id": "1904",
+      "year": "1904",
+      "title": "NOAA western-end shoreline survey",
+      "status": "Authoritative survey metadata exists, but the actual shoreline vector has not yet been imported.",
+      "sourceIds": [
+        "noaa-western-end"
+      ]
+    },
+    {
+      "id": "1912",
+      "year": "1912",
+      "title": "Trumbo terminal and first railway arrival",
+      "status": "Central historical milestone. It is intentionally not selectable until the 1912 NOAA shoreline vector is acquired.",
+      "sourceIds": [
+        "noaa-waterfront",
+        "kwahs-railway",
+        "navfac-trumbo"
+      ]
+    },
+    {
+      "id": "1935",
+      "year": "1935",
+      "title": "End of direct Overseas Railway service",
+      "status": "Documented milestone; no distinct spatial layer is currently published.",
+      "sourceIds": [
+        "kwahs-railway",
+        "keys-history-center",
+        "uf-aerials"
+      ]
+    }
+  ],
+  "archiveMaps": [
+    {
+      "id": "ribero-1529",
+      "year": "1529",
+      "title": "Map of America by Diego Ribero",
+      "scope": "Spanish imperial world map showing the Atlantic and the southeastern edge of North America. It is continental context, not island-scale shoreline evidence.",
+      "status": "Cataloged for historical context; requires a reviewed georeferencing model before any overlay use.",
+      "sourceId": "loc-ribero-1529",
+      "keywords": [
+        "Florida",
+        "Casa de la Contratación",
+        "Spanish colonial cartography"
+      ]
+    },
+    {
+      "id": "gutierrez-1562",
+      "year": "1562",
+      "title": "Americae sive quartae orbis partis nova et exactissima descriptio",
+      "scope": "Diego Gutiérrez’s official Spanish map of the Americas. It provides early colonial geographic context for Florida and the Caribbean.",
+      "status": "Cataloged as very early Spanish context; too broad for shoreline comparison without regional georeferencing.",
+      "sourceId": "loc-gutierrez-1562",
+      "keywords": [
+        "Florida",
+        "Spanish Empire",
+        "Casa de la Contratación"
+      ]
+    },
+    {
+      "id": "spanish-portolan-1730",
+      "year": "c.1730",
+      "title": "Spanish manuscript chart of the Gulf of Mexico and western Caribbean",
+      "scope": "Spanish-language portolan chart covering the Gulf, Florida, and the western Caribbean, including the Florida Keys region.",
+      "status": "High-priority georeferencing candidate for early Keys nomenclature and regional navigation context.",
+      "sourceId": "loc-spanish-portolan-1730",
+      "keywords": [
+        "Cayo Hueso",
+        "Los Mártires",
+        "Cayos de la Florida"
+      ]
+    },
+    {
+      "id": "spanish-gulf-1755",
+      "year": "1755",
+      "title": "Mapa marítimo del Golfo de México e islas de la América",
+      "scope": "Spanish nautical chart prepared in Madrid from astronomical observations and navigational sources.",
+      "status": "High-priority georeferencing candidate; public-domain scan and IIIF manifest are available from the Library of Congress.",
+      "sourceId": "loc-spanish-gulf-1755",
+      "keywords": [
+        "Cayo Hueso",
+        "Cayos del norte de La Habana",
+        "Florida Keys"
+      ]
+    },
+    {
+      "id": "spanish-caribbean-1765",
+      "year": "1765",
+      "title": "Descripción de las costas, islas, placeres y bajos de las Indias Occidentales",
+      "scope": "Spanish manuscript portolan chart of the southern United States, Gulf, Caribbean, and adjacent coasts.",
+      "status": "High-priority regional context map; control points must be reviewed before overlay publication.",
+      "sourceId": "loc-spanish-caribbean-1765",
+      "keywords": [
+        "Indias Occidentales",
+        "Florida",
+        "Cayos"
+      ]
+    },
+    {
+      "id": "spanish-gulf-1787",
+      "year": "1787",
+      "title": "Mapa y plano del Seno Mexicano",
+      "scope": "Spanish chart compiled in Havana with pilots of the squadron; includes named tables for cayes north of Havana and the Old Bahama Channel.",
+      "status": "Highest-priority Spanish-era candidate for Florida Keys and Havana-channel nomenclature.",
+      "sourceId": "loc-spanish-gulf-1787",
+      "keywords": [
+        "Cayo Hueso",
+        "Cayos del norte de La Habana",
+        "Canal Viejo de Bahama"
+      ]
+    }
+  ]
+}

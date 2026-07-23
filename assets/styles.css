@@ -125,7 +125,7 @@ input:focus-visible {
 
 .tab-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   margin-bottom: 1rem;
   border-bottom: 1px solid var(--line);
 }
@@ -522,4 +522,88 @@ code {
   }
 
   #open-about { grid-column: 1 / -1; }
+}
+
+/* Verified-evidence timeline */
+.availability-note {
+  margin: 0 0 1rem;
+  border-left: 3px solid #176f83;
+  padding: .55rem .65rem;
+  background: #edf5f6;
+  color: #38515a;
+  font-size: .82rem;
+  line-height: 1.42;
+}
+
+.milestone-list {
+  display: grid;
+  gap: .6rem;
+}
+
+.milestone-card {
+  display: grid;
+  grid-template-columns: 3.7rem 1fr;
+  gap: .65rem;
+  border: 1px solid var(--line);
+  border-radius: .5rem;
+  padding: .7rem;
+  background: #faf8f2;
+}
+
+.milestone-year {
+  align-self: start;
+  border-radius: .35rem;
+  padding: .35rem .4rem;
+  background: #e7e2d6;
+  color: var(--navy);
+  text-align: center;
+  font-size: .8rem;
+  font-weight: 800;
+}
+
+.milestone-card h4 {
+  margin: 0;
+  font-size: .9rem;
+}
+
+.milestone-card p {
+  margin: .25rem 0 .45rem;
+  color: var(--muted);
+  font-size: .8rem;
+  line-height: 1.4;
+}
+
+.milestone-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+}
+
+.source-chip {
+  display: inline-block;
+  max-width: 100%;
+  border: 1px solid #b7c6ca;
+  border-radius: 999px;
+  padding: .22rem .45rem;
+  background: white;
+  color: #155f73;
+  text-decoration: none;
+  font-size: .68rem;
+  line-height: 1.2;
+}
+
+.source-chip .source-meta { display: none; }
+.source-chip .source-title { color: inherit; font-weight: 650; }
+
+.swatch-evidence {
+  background: repeating-linear-gradient(45deg, #887a62, #887a62 3px, #d9cdb5 3px, #d9cdb5 6px);
+  border: 1px solid #655a47;
+}
+
+.period-button[aria-current="true"] {
+  box-shadow: 0 0 0 2px rgba(23,111,131,.18);
+}
+
+@media (max-width: 520px) {
+  .milestone-card { grid-template-columns: 3.25rem 1fr; }
 }

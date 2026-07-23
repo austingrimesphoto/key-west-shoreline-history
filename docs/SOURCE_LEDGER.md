@@ -4,6 +4,12 @@
 
 | ID | Institution | Date / coverage | Current use | Status |
 |---|---|---|---|---|
+| `loc-ribero-1529` | Library of Congress | 1529 Spanish imperial world map | Earliest Spanish cartographic context in the archive | Verified, public domain |
+| `loc-gutierrez-1562` | Library of Congress | 1562 map of the Americas by Diego Gutiérrez | Spanish colonial context for Florida and the Caribbean | Verified, public domain |
+| `loc-spanish-portolan-1730` | Library of Congress | circa 1730 Spanish manuscript portolan | Priority early Gulf / Florida Keys georeferencing candidate | Verified, public domain |
+| `loc-spanish-gulf-1755` | Library of Congress | 1755 Spanish Gulf and Caribbean nautical chart | Priority Spanish-era georeferencing candidate | Verified, public domain |
+| `loc-spanish-caribbean-1765` | Library of Congress | 1765 Spanish manuscript chart of the West Indies | Regional reefs, islands, and navigation context | Verified, public domain |
+| `loc-spanish-gulf-1787` | Library of Congress | 1787 chart compiled in Havana | Highest-priority source for named cayes north of Havana and the Old Bahama Channel | Verified, public domain |
 | `uscs-chart-1859` | U.S. Coast Survey / Wikimedia Commons | 1859 western Keys and Key West | Archival preview and earliest island-wide reconstruction target | Verified, public domain |
 | `noaa-western-end` | NOAA NGS | 1904-01-01; -81.8084875 to -81.7982812, 24.5441808 to 24.5632966 | Exact metadata coverage polygon | Verified |
 | `warper-1907` | Wikimaps Warper | 1907 chart; five control points | Live raster overlay | Verified; interpretation-grade |
@@ -27,7 +33,7 @@ These may reflect different dates, boundaries, rounding, or definitions of the d
 
 ## Runtime aerial publication rule
 
-The application queries NOAA's historical-imagery catalog within the Key West study envelope. It publishes only exact years returned by the service and locks every exported year to the catalog `OBJECTID` values returned for that year. Aerial years are therefore distinct map sources rather than repeated labels on a single overlay.
+The application renders the fixed timeline first, then queries NOAA's historical-imagery catalog in the background. Netlify uses a same-origin proxy to avoid browser CORS failures; direct NOAA access remains a fallback. The query is limited to the Key West study envelope. It publishes only exact years returned by the service and locks every exported year to the catalog `OBJECTID` values returned for that year. Aerial years are therefore distinct map sources rather than repeated labels on a single overlay.
 
 NOAA states that these historical aerial photographs are georeferenced but not orthorectified. They are visual evidence and may retain positional error.
 

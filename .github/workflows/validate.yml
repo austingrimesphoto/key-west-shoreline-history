@@ -29,3 +29,4 @@ jobs:
         run: |
           node --check assets/period-utils.js
           node --check assets/app.js
+          node --check netlify/functions/noaa-aerial-catalog.mjs

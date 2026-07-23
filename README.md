@@ -9,16 +9,18 @@ The timeline is now evidence-gated: **a date appears as a selectable map state o
 The application includes:
 
 - one fixed, georeferenced 1907 harbor-chart overlay;
-- runtime discovery of NOAA historical aerial frames intersecting Key West;
+- immediate loading of the fixed historical map states, without waiting on NOAA or the modern shoreline service;
+- background discovery of NOAA historical aerial frames intersecting Key West through a same-origin Netlify proxy with direct-service fallback;
 - one locked NOAA raster mosaic for each exact aerial year the catalog returns;
 - a modern NOAA shoreline reference;
 - whole-island and Trumbo Point views;
 - explicit source and uncertainty information;
 - a separate milestone list for important dates that are documented but not yet spatially publishable;
+- an early-map archive catalog spanning 1529–1787, including Spanish-language and Spanish imperial maps searched under names such as Cayo Hueso, Los Mártires, and Cayos de la Florida;
 - automated manifest, GeoJSON, and JavaScript validation;
 - Netlify configuration.
 
-The 1907 chart is never reused under another date. The NOAA aerial catalog is queried before the timeline is constructed, and duplicate overlay identities are rejected.
+The 1907 chart is never reused under another date. The fixed timeline renders first; NOAA aerial discovery and the modern shoreline load independently in the background. A failure in either service can no longer freeze the interface.
 
 ## Why some historically important dates are not selectable
 
@@ -32,16 +34,15 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000`.
 
-The basemap, NOAA historical-aerial discovery, NOAA image export, NOAA modern shoreline, and the 1907 raster tiles require internet access.
+The basemap, NOAA image export, NOAA modern shoreline, and the 1907 raster tiles require internet access. The story, source catalog, early-map archive, and fixed timeline still render if a remote GIS service is unavailable.
 
 ## Validate
 
 ```bash
 python3 scripts/validate_geojson.py
 python3 scripts/smoke_test.py
-node scripts/test_period_utils.mjs
-node --check assets/period-utils.js
 node --check assets/app.js
+node --check netlify/functions/noaa-aerial-catalog.mjs
 ```
 
 The smoke test enforces:

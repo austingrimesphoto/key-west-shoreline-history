@@ -8,7 +8,7 @@
   <title>Key West: The Island That Grew</title>
   <link rel="preconnect" href="https://tiles.openfreemap.org">
   <link rel="preconnect" href="https://imagery.coast.noaa.gov">
-  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.css">
   <link rel="stylesheet" href="./assets/styles.css">
   <link rel="stylesheet" href="./assets/evidence.css">
 </head>
@@ -31,6 +31,7 @@
       <aside class="sidebar" aria-label="Historical map controls">
         <div class="tab-list" role="tablist" aria-label="Information panels">
           <button class="tab is-active" id="tab-story" type="button" role="tab" aria-selected="true" aria-controls="panel-story">Story</button>
+          <button class="tab" id="tab-archive" type="button" role="tab" aria-selected="false" aria-controls="panel-archive">Early maps</button>
           <button class="tab" id="tab-sources" type="button" role="tab" aria-selected="false" aria-controls="panel-sources">Sources</button>
           <button class="tab" id="tab-method" type="button" role="tab" aria-selected="false" aria-controls="panel-method">Method</button>
         </div>
@@ -100,6 +101,16 @@
           </section>
         </section>
 
+
+        <section id="panel-archive" class="tab-panel" role="tabpanel" aria-labelledby="tab-archive" hidden>
+          <h2>Early Gulf and Spanish-era maps</h2>
+          <div class="method-callout">
+            <strong>Old regional charts are being collected before they are georeferenced.</strong>
+            <p>Searches include the historical names <em>Cayo Hueso</em>, <em>Los Mártires</em>, and <em>Cayos de la Florida</em>. These maps are valuable evidence, but broad Gulf and Caribbean charts will not be overlaid at island scale until control points and distortion are reviewed.</p>
+          </div>
+          <div id="archive-map-list" class="archive-map-list"></div>
+        </section>
+
         <section id="panel-sources" class="tab-panel" role="tabpanel" aria-labelledby="tab-sources" hidden>
           <h2>Source catalog</h2>
           <p class="muted">Every selectable date must resolve to its own map source. Archival documents and survey metadata remain in the catalog even when they are not yet spatially publishable.</p>
@@ -147,8 +158,11 @@
   </dialog>
 
   <noscript>This site requires JavaScript for the interactive map.</noscript>
-  <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
   <script src="./assets/period-utils.js"></script>
-  <script src="./assets/app.js"></script>
+  <script src="./assets/app-core.js"></script>
+  <script src="./assets/app-periods.js"></script>
+  <script src="./assets/app-map.js"></script>
+  <script src="./assets/app-init.js"></script>
 </body>
 </html>
