@@ -1,0 +1,30 @@
+name: Install project tree
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".bootstrap/project.tar.gz.b64"
+      - ".github/workflows/bootstrap-project.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Expand project
+        run: |
+          base64 --decode .bootstrap/project.tar.gz.b64 > /tmp/key-west-project.tar.gz
+          tar -xzf /tmp/key-west-project.tar.gz -C .
+          rm -rf .bootstrap
+          rm -f .github/workflows/bootstrap-project.yml
+      - name: Commit complete project
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Install Key West historical GIS project"
+          git push
