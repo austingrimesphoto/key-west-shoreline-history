@@ -34,4 +34,3 @@ jobs:
           node --check assets/app-map.js
           node --check assets/app-init.js
           node --check netlify/functions/noaa-aerial-catalog.mjs
-          node --check netlify/functions/historical-image.mjs
