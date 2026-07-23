@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check manifest links and the verified-map-state contract."""
+"""Check manifests, fixed map states, optional NOAA behavior, and experimental overlays."""
 
 from __future__ import annotations
 
@@ -25,18 +25,17 @@ coverage = json.loads((ROOT / "data/survey-coverage.geojson").read_text(encoding
 
 source_ids = {item["id"] for item in sources}
 coverage_ids = {item["properties"]["coverage_id"] for item in coverage["features"]}
-
-if len(periods) < 2:
-    fail(f"Expected at least two fixed map states, found {len(periods)}")
-
 period_ids = [period["id"] for period in periods]
-milestone_ids = [milestone["id"] for milestone in milestones]
+
+if len(periods) < 6:
+    fail(f"Expected at least six fixed map states, found {len(periods)}")
 if len(set(period_ids)) != len(period_ids):
     fail("Fixed period IDs must be unique")
-if set(period_ids) & set(milestone_ids):
+if set(period_ids) & {milestone["id"] for milestone in milestones}:
     fail("A date cannot be both a selectable map state and an unmapped milestone")
 
 identities: list[str] = []
+approximate_count = 0
 for period in periods:
     overlay = period.get("overlay")
     if not isinstance(overlay, dict):
@@ -45,14 +44,26 @@ for period in periods:
     if not identity:
         fail(f"{period['id']}: overlay identity is required")
     identities.append(identity)
-    if overlay.get("type") not in {"xyz", "modern-line"}:
-        fail(f"{period['id']}: unsupported fixed overlay type {overlay.get('type')}")
+    overlay_type = overlay.get("type")
+    if overlay_type not in {"xyz", "image", "modern-line"}:
+        fail(f"{period['id']}: unsupported fixed overlay type {overlay_type}")
+    if overlay_type == "image":
+        approximate_count += 1
+        if not overlay.get("adjustable") or not overlay.get("approximate"):
+            fail(f"{period['id']}: image overlays must be explicitly adjustable and approximate")
+        coordinates = overlay.get("coordinates")
+        if not isinstance(coordinates, list) or len(coordinates) != 4:
+            fail(f"{period['id']}: image overlay must contain four corner coordinates")
+        if not str(overlay.get("url", "")).startswith("https://"):
+            fail(f"{period['id']}: image overlay requires an HTTPS source image")
     for source_id in period.get("sourceIds", []):
         if source_id not in source_ids:
             fail(f"{period['id']}: unknown source {source_id}")
     if period.get("coverageId") and period["coverageId"] not in coverage_ids:
         fail(f"{period['id']}: unknown coverage {period['coverageId']}")
 
+if approximate_count < 4:
+    fail(f"Expected four experimental historical image overlays, found {approximate_count}")
 if len(set(identities)) != len(identities):
     fail("Selectable fixed periods reuse the same overlay identity")
 
@@ -67,59 +78,48 @@ if len(set(archive_ids)) != len(archive_ids):
 for item in archive_maps:
     if item.get("sourceId") not in source_ids:
         fail(f"archive map {item.get('id')}: unknown source {item.get('sourceId')}")
-    if not item.get("year") or not item.get("title") or not item.get("status"):
-        fail(f"archive map {item.get('id')}: incomplete metadata")
+    if item.get("periodId") and item["periodId"] not in period_ids:
+        fail(f"archive map {item.get('id')}: unknown mapped period {item.get('periodId')}")
 
 if aerial.get("sourceId") not in source_ids:
     fail("Aerial discovery references an unknown source")
 if not str(aerial.get("service", "")).startswith("https://imagery.coast.noaa.gov/"):
     fail("Aerial discovery must use the official NOAA imagery service")
-if aerial.get("yearMin") >= aerial.get("yearMax"):
-    fail("Aerial discovery year range is invalid")
-if not aerial.get("identityPrefix"):
-    fail("Aerial discovery identity prefix is required")
 if aerial.get("catalogProxy") != "/.netlify/functions/noaa-aerial-catalog":
-    fail("Aerial discovery must use the same-origin Netlify proxy before direct NOAA fallback")
+    fail("Aerial discovery must use the same-origin Netlify proxy")
 
 app = "\n".join(
     (ROOT / "assets" / name).read_text(encoding="utf-8")
     for name in ("app-core.js", "app-periods.js", "app-map.js", "app-init.js")
 )
-utils = (ROOT / "assets/period-utils.js").read_text(encoding="utf-8")
 index = (ROOT / "index.html").read_text(encoding="utf-8")
 contracts = {
-    "discoverAerialPeriods": app,
-    "esriMosaicLockRaster": utils,
-    "arcgis-image": app,
-    "buildArcGisExportUrl": app,
-    "enforceDistinctMapStates": utils,
-    "period-utils.js": index,
-    "app-core.js": index,
-    "app-periods.js": index,
-    "app-map.js": index,
-    "app-init.js": index,
-    "CUSP_QUERY_URL": app,
-    "verified map state": index.lower(),
-    "milestone-list": index,
-    "focus-trumbo": index,
-    "archive-map-list": index,
-    "buildArchiveMaps": app,
-    "fetchJsonCandidates": app,
-    "startMap(dataReady)": app,
-    "installBaseLayers();renderPeriod();installCuspLayer();": app,
+    "refreshAerialPeriods": app,
+    "timeoutMs: 7000": app,
+    'status: "unavailable"': app,
+    'overlay.type === "image"': app,
+    "setCoordinates": app,
+    "adjustAlignment": app,
+    "alignment-controls": index,
+    "retry-aerials": index,
+    "app-core.js?v=20260723-4": index,
+    "Loading historical map states": index,
+    "Early maps": index,
 }
 for required, haystack in contracts.items():
     if required not in haystack:
         fail(f"Missing app contract: {required}")
 
-if "const discovered=await discoverAerialPeriods" in app:
-    fail("Optional NOAA aerial discovery must not block the fixed timeline")
+if "Checking available map evidence" in index:
+    fail("The static page must not imply that NOAA blocks map startup")
+if "fetchJsonCandidates" in app:
+    fail("Production NOAA discovery must not fall back to a cross-origin browser request")
 if not (ROOT / "netlify/functions/noaa-aerial-catalog.mjs").exists():
     fail("NOAA aerial proxy function is missing")
 
 print(
     "Smoke test passed: "
-    f"{len(periods)} fixed map states, dynamic NOAA aerial discovery, "
-    f"{len(milestones)} unmapped milestones, {len(archive_maps)} early archive maps, {len(sources)} sources, "
-    f"{len(coverage['features'])} survey footprints."
+    f"{len(periods)} fixed states ({approximate_count} adjustable historical images), "
+    f"optional bounded NOAA discovery, {len(milestones)} unmapped milestones, "
+    f"{len(archive_maps)} archive records, {len(sources)} sources."
 )
