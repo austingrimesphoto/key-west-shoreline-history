@@ -23,5 +23,9 @@ jobs:
         run: python3 scripts/validate_geojson.py
       - name: Smoke test manifests
         run: python3 scripts/smoke_test.py
+      - name: Test period discovery utilities
+        run: node scripts/test_period_utils.mjs
       - name: Check JavaScript syntax
-        run: node --check assets/app.js
+        run: |
+          node --check assets/period-utils.js
+          node --check assets/app.js

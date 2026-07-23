@@ -1,25 +1,28 @@
 # Implementation phases
 
-## Phase 1 — Evidence-backed working map
+## Phase 1 — Evidence-gated working map
 
 Status: **complete**
 
-- evidence-backed period timeline;
-- 1907 georeferenced raster overlay;
+- fixed 1907 georeferenced chart overlay, used once;
+- live discovery of exact NOAA historical-aerial years over Key West;
+- one locked raster mosaic per verified aerial year;
+- modern NOAA shoreline reference;
+- explicit separation between selectable map states and unmapped milestones;
 - exact NOAA survey-project footprints;
-- live NOAA modern shoreline request;
 - Trumbo focus and source discrepancy handling;
-- validation, smoke tests, and Netlify deployment configuration.
+- validation, executable period-discovery tests, and Netlify configuration.
 
 ## Phase 2 — NOAA shoreline vectors
 
-Status: **blocked only on binary package acquisition**
+Status: **blocked on vector-package acquisition**
 
 - import 1904 western-end vector;
 - import 1912 waterfront vector;
 - import 1957 harbor vector;
 - import 2016 high-resolution vector;
 - preserve source attributes and CRS metadata;
+- promote 1904 and 1912 from milestones to map states only after validation;
 - publish shoreline lines before deriving land polygons.
 
 ## Phase 3 — Early island and railway land polygons
@@ -30,12 +33,14 @@ Status: **blocked only on binary package acquisition**
 - derive Trumbo fill from pre-terminal versus 1912 evidence;
 - map railway track and terminal geometry from documented maps.
 
-## Phase 4 — Aerial-derived wartime and postwar growth
+## Phase 4 — Aerial-derived land reconstruction
 
-- acquire dated 1930s, 1940s, and 1960s aerial frames;
-- georeference and trace whole-island land extent;
+- review the NOAA aerial years discovered over Key West;
+- select frames with adequate island coverage and metadata;
+- trace whole-island land extent for defensible representative years;
 - map New Town, airport, Sigsbee, Fleming Key, and Navy changes;
-- keep nearby artificial islands topologically distinct.
+- keep nearby artificial islands topologically distinct;
+- record registration limitations and reviewer decisions.
 
 ## Phase 5 — Analysis and public-history polish
 

@@ -7,8 +7,10 @@
   <meta name="theme-color" content="#0d2b36">
   <title>Key West: The Island That Grew</title>
   <link rel="preconnect" href="https://tiles.openfreemap.org">
+  <link rel="preconnect" href="https://imagery.coast.noaa.gov">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.css">
   <link rel="stylesheet" href="./assets/styles.css">
+  <link rel="stylesheet" href="./assets/evidence.css">
 </head>
 <body>
   <a class="skip-link" href="#main-panel">Skip to map controls</a>
@@ -37,69 +39,52 @@
           <div class="period-heading">
             <div>
               <p id="period-kicker" class="eyebrow">Loading</p>
-              <h2 id="period-title">Loading timeline…</h2>
+              <h2 id="period-title">Checking available map evidence…</h2>
             </div>
             <span id="period-confidence" class="confidence-badge">Pending</span>
           </div>
-          <p id="period-summary" class="period-summary">Loading project manifest.</p>
+          <p id="period-summary" class="period-summary">The timeline will appear after each candidate date proves it has its own spatial layer over Key West.</p>
 
           <div class="timeline-control">
-            <label for="period-slider">Historical period</label>
-            <input id="period-slider" type="range" min="0" max="7" value="0" step="1">
+            <label for="period-slider">Verified map state</label>
+            <input id="period-slider" type="range" min="0" max="1" value="0" step="1" disabled>
             <div id="timeline-labels" class="timeline-labels" aria-hidden="true"></div>
           </div>
-          <div id="period-buttons" class="period-buttons" aria-label="Choose a historical period"></div>
+          <div id="period-buttons" class="period-buttons" aria-label="Choose a verified historical map state"></div>
+          <p id="availability-note" class="availability-note" aria-live="polite">Checking NOAA’s catalog for distinct historical aerial years over Key West…</p>
 
           <fieldset class="layer-controls">
-            <legend>Evidence layers</legend>
+            <legend>Map evidence</legend>
             <label class="check-row">
-              <input id="toggle-chart" type="checkbox" checked>
-              <span>Historical chart overlay</span>
+              <input id="toggle-evidence" type="checkbox" checked>
+              <span id="evidence-label">Selected period evidence overlay</span>
             </label>
             <div class="range-row">
-              <label for="chart-opacity">Chart opacity</label>
-              <output id="chart-opacity-output" for="chart-opacity">70%</output>
+              <label id="evidence-opacity-label" for="evidence-opacity">Evidence opacity</label>
+              <output id="evidence-opacity-output" for="evidence-opacity">75%</output>
             </div>
-            <input id="chart-opacity" class="full-range" type="range" min="0" max="100" value="70" step="1">
+            <input id="evidence-opacity" class="full-range" type="range" min="0" max="100" value="75" step="1">
             <label class="check-row">
               <input id="toggle-modern-shoreline" type="checkbox" checked>
-              <span>NOAA modern shoreline service</span>
+              <span>Modern shoreline comparison</span>
             </label>
             <label class="check-row">
               <input id="toggle-coverage" type="checkbox" checked>
-              <span>NOAA survey coverage</span>
-            </label>
-            <label class="check-row">
-              <input id="toggle-land" type="checkbox" checked>
-              <span>Published historical land</span>
-            </label>
-            <label class="check-row">
-              <input id="toggle-fill" type="checkbox" checked>
-              <span>Published land added</span>
-            </label>
-            <label class="check-row">
-              <input id="toggle-rail" type="checkbox" checked>
-              <span>Published railway geometry</span>
+              <span>NOAA survey-project coverage</span>
             </label>
           </fieldset>
 
           <div class="status-card" aria-live="polite">
-            <div class="status-row"><span>Historical features</span><strong id="feature-count">0</strong></div>
+            <div class="status-row"><span>Selected evidence</span><strong id="overlay-status">Checking…</strong></div>
+            <div class="status-row"><span>Source items</span><strong id="evidence-count">0</strong></div>
             <div class="status-row"><span>Period status</span><strong id="data-status">Checking…</strong></div>
+            <div class="status-row"><span>Historical aerial catalog</span><strong id="aerial-status">Checking…</strong></div>
             <div class="status-row"><span>Modern shoreline</span><strong id="cusp-status">Waiting…</strong></div>
             <p id="data-note" class="status-note"></p>
           </div>
 
-          <section id="archival-map-section" class="story-section" hidden>
-            <h3>Archival chart</h3>
-            <a id="archival-map-link" class="archive-preview" target="_blank" rel="noreferrer">
-              <img id="archival-map-image" alt="">
-              <span id="archival-map-caption"></span>
-            </a>
-          </section>
-
           <section class="story-section">
-            <h3>What changes in this period</h3>
+            <h3>What this layer shows</h3>
             <ul id="period-highlights"></ul>
           </section>
 
@@ -107,27 +92,34 @@
             <h3>Primary evidence</h3>
             <div id="period-sources" class="source-links"></div>
           </section>
+
+          <section class="story-section">
+            <h3>Documented milestones not yet mapped</h3>
+            <p class="muted">These dates remain important to the story, but they are not selectable because the project does not yet have a distinct spatial layer for them.</p>
+            <div id="milestone-list" class="milestone-list"></div>
+          </section>
         </section>
 
         <section id="panel-sources" class="tab-panel" role="tabpanel" aria-labelledby="tab-sources" hidden>
           <h2>Source catalog</h2>
-          <p class="muted">Survey project envelopes, source dates, and uncertainty are displayed separately from shoreline geometry.</p>
+          <p class="muted">Every selectable date must resolve to its own map source. Archival documents and survey metadata remain in the catalog even when they are not yet spatially publishable.</p>
           <div id="source-catalog" class="source-catalog"></div>
         </section>
 
         <section id="panel-method" class="tab-panel" role="tabpanel" aria-labelledby="tab-method" hidden>
-          <h2>What the map currently proves</h2>
+          <h2>How dates enter the timeline</h2>
           <div class="method-callout">
-            <strong>Visible survey rectangles are coverage—not coastline.</strong>
-            <p>They are constructed directly from NOAA’s published metadata extents and dates. They show where authoritative shoreline data exists while the vector downloads are being acquired.</p>
+            <strong>A date is selectable only when it has unique spatial evidence.</strong>
+            <p>The application queries NOAA’s live historical-aerial catalog over the Key West study bounds, groups returned catalog rasters by their actual year, and creates one locked raster mosaic per verified year. It never relabels the 1907 chart as another date.</p>
           </div>
           <ol class="method-list">
-            <li><strong>Surveyed:</strong> NOAA vector shoreline or a Coast Survey manuscript with documented control.</li>
-            <li><strong>Aerial-derived:</strong> traced from a dated, georeferenced aerial image.</li>
-            <li><strong>Mapped:</strong> traced from a georeferenced historical map.</li>
-            <li><strong>Approximate:</strong> incomplete evidence, visibly styled and explained as uncertain.</li>
+            <li><strong>Fixed chart:</strong> the 1907 georeferenced Admiralty chart has its own tile source and appears once.</li>
+            <li><strong>Discovered aerial year:</strong> NOAA must return at least one exact-year catalog raster intersecting Key West before that year appears.</li>
+            <li><strong>Modern reference:</strong> NOAA’s live shoreline service represents the present-day comparison state.</li>
+            <li><strong>Milestone only:</strong> historically important dates stay in the narrative until a defensible spatial layer is acquired.</li>
           </ol>
-          <p>The 1907 raster is a genuine georeferenced chart overlay, but its five control points make it interpretation-grade. No historical land polygon has been fabricated to make the timeline appear complete.</p>
+          <p>NOAA describes the historical aerial photographs as georeferenced but not orthorectified. They are useful visual evidence, but alignment error is possible and should not be interpreted as survey-grade precision.</p>
+          <p>Survey-coverage rectangles remain metadata envelopes, not coastlines. No historical land polygon is fabricated to make the timeline look complete.</p>
           <p>Detailed methods and status are in <code>docs/DATA_METHOD.md</code> and <code>docs/IMPLEMENTATION_STATUS.md</code>.</p>
         </section>
       </aside>
@@ -135,12 +127,9 @@
       <section class="map-panel" aria-label="Interactive historical map">
         <div id="map" role="application" aria-label="Interactive map of Key West"></div>
         <div class="map-legend" aria-label="Map legend">
-          <div><span class="swatch swatch-chart"></span> Historical chart</div>
-          <div><span class="swatch swatch-modern"></span> NOAA modern shoreline</div>
-          <div><span class="swatch swatch-coverage"></span> Survey coverage</div>
-          <div><span class="swatch swatch-land"></span> Published historical land</div>
-          <div><span class="swatch swatch-fill"></span> Land added</div>
-          <div><span class="swatch swatch-rail"></span> Railway</div>
+          <div><span class="swatch swatch-evidence"></span> Selected period evidence</div>
+          <div><span class="swatch swatch-modern"></span> Modern NOAA shoreline</div>
+          <div><span class="swatch swatch-coverage"></span> Survey-project coverage</div>
         </div>
         <div id="map-message" class="map-message" hidden></div>
       </section>
@@ -153,12 +142,13 @@
       <button id="close-about" class="icon-button" type="button" aria-label="Close">×</button>
     </div>
     <p>This public historical GIS reconstructs the physical growth of Key West, with special attention to Trumbo Point, the Florida East Coast Railway, wartime naval development, and later reclamation.</p>
-    <p><strong>Current working release:</strong> source-backed timeline, real NOAA survey footprints, a live NOAA modern shoreline request, and a georeferenced 1907 chart overlay. Historical shoreline polygons will appear only after the underlying vector data is imported and reviewed.</p>
+    <p><strong>Current map rule:</strong> the timeline includes only dates backed by a distinct spatial layer. NOAA historical-aerial years are discovered and verified at runtime; unsupported milestone dates remain visible in the narrative but cannot be selected as maps.</p>
     <p class="muted">Basemap: OpenFreeMap and OpenStreetMap contributors. Each historical source retains its own credit and rights statement.</p>
   </dialog>
 
   <noscript>This site requires JavaScript for the interactive map.</noscript>
   <script src="https://unpkg.com/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+  <script src="./assets/period-utils.js"></script>
   <script src="./assets/app.js"></script>
 </body>
 </html>

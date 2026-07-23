@@ -1,125 +1,59 @@
-# Historical GIS method
+# Data method
 
-## Standard of proof
+## Publication rule
 
-The project is more rigorous than a visual collage but deliberately avoids a publication-grade survey of every shoreline segment. The goal is a defensible public history map with transparent uncertainty and limited manual fine-tuning.
+A date is selectable in the interactive map only when it has a distinct spatial evidence source. Historical importance alone is not sufficient.
 
-No historical boundary may be drawn solely from intuition, modern parcel lines, or an artist’s impression.
+The project separates:
 
-## Evidence classes
+- **map states** — dates with a georeferenced raster or vector that can be displayed spatially;
+- **milestones** — important dates supported by documents or metadata but not yet represented by a publishable spatial layer.
 
-### Surveyed
+## Runtime NOAA aerial discovery
 
-Use when geometry comes directly from:
+At startup, the application queries NOAA's historical-imagery ImageServer catalog using the Key West study envelope in EPSG:4326.
 
-- NOAA historical shoreline vectors;
-- NOAA modern shoreline vectors;
-- a georeferenced Coast Survey sheet with adequate positional control.
+The query requests primary imagery records with years from 1944 through 1969 and retrieves:
 
-Display: solid boundary.
+- object ID;
+- image name;
+- mission;
+- year;
+- source link;
+- resolution;
+- sensor;
+- horizontal-accuracy notes;
+- tide-control metadata.
 
-### Aerial-derived
+Returned records are grouped by their exact `Year`. A year appears in the timeline only when at least one valid raster object ID is returned.
 
-Use when shoreline is digitized from a dated aerial image that has been georeferenced against stable control points.
+For display, the application calls the ImageServer `exportImage` operation with an `esriMosaicLockRaster` rule. The rule contains only the object IDs returned for the selected year. This prevents the service from silently substituting imagery from another date.
 
-Display: solid boundary with metadata identifying the image date and georeferencing residual.
+## Fixed historical chart
 
-### Mapped
+The 1907 Admiralty chart is supplied through Wikimaps Warper map 4655. It has five published control points and is treated as interpretation-grade rather than survey-grade.
 
-Use when geometry is digitized from a historical map, such as a Sanborn sheet, and the map has adequate fixed control points.
+It is displayed only for 1907.
 
-Display: solid or lightly differentiated line. Do not claim survey-level accuracy.
+## Modern shoreline
 
-### Approximate
+The blue modern shoreline is requested from NOAA's CUSP feature service. It is a modern comparison line and not a replacement for NOAA's higher-control National Shoreline products.
 
-Use only when evidence is incomplete but the feature is historically important.
+## Accuracy language
 
-Display: dashed boundary. The notes field must explain the uncertainty.
+Evidence classes used by the broader project remain:
 
-## QGIS project settings
+- **surveyed** — NOAA vector shoreline or Coast Survey manuscript with documented control;
+- **aerial-derived** — traced from dated, georeferenced aerial imagery;
+- **mapped** — traced from a georeferenced historical map;
+- **approximate** — incomplete evidence, visibly labeled as uncertain.
 
-Recommended project CRS:
+NOAA historical aerial imagery is georeferenced but not orthorectified. Apparent displacement between dates may include image-registration error, relief displacement, or mosaic effects.
 
-- **EPSG:4326** for web-export GeoJSON.
-- Use an appropriate Florida State Plane or UTM CRS during measurement and digitizing, then export to EPSG:4326.
+## Coverage envelopes
 
-Keep source rasters in a non-deployed working directory. Do not commit multi-hundred-megabyte scans or TIFFs to the public site.
+NOAA survey-project envelopes are retained as metadata coverage. They are styled as dashed rectangles and explicitly described as not being shoreline geometry.
 
-## Georeferencing workflow
+## No invented completion
 
-1. Record the archival item, date, institution, rights statement, and permanent URL in `docs/SOURCE_LEDGER.md`.
-2. Download the highest practical resolution.
-3. Identify stable control points:
-   - street intersections on original ground;
-   - enduring masonry structures;
-   - fixed fortifications;
-   - surveyed monuments where available.
-4. Avoid using later reclaimed shorelines as control points for earlier maps.
-5. Use at least six well-distributed points for a full-island image where possible.
-6. Start with a first-order polynomial or Helmert transform.
-7. Inspect residuals and distortion. More control points do not automatically improve a bad source.
-8. Save the QGIS GCP report and note the RMS error in the ledger.
-9. Digitize land extent, fill increments, railway alignments, and over-water structures as separate feature classes.
-10. Export simplified copies for the web while retaining the full-resolution working geometry outside the deployed bundle.
-
-## Topology rules
-
-- Land polygons must not self-intersect.
-- Fill for period N should represent land present in N that was absent in N-1.
-- Piers and elevated structures over water are not land unless the source shows permanent fill.
-- Nearby artificial land such as Sigsbee or Fleming Key must not be silently merged into Key West proper.
-- All periods must use a consistent operational definition of shoreline before calculating area gain.
-
-## Required feature properties
-
-Every published feature must include:
-
-```json
-{
-  "source_id": "noaa-historical-harbor",
-  "source_title": "Shoreline Data Rescue Project of Key West Harbor, Florida, PH5805",
-  "source_url": "https://www.fisheries.noaa.gov/inport/item/62571",
-  "evidence_class": "surveyed",
-  "survey_or_image_date": "YYYY-MM-DD or documented year",
-  "confidence": "high",
-  "notes": "What was traced, transformed, excluded, or inferred."
-}
-```
-
-Allowed evidence classes:
-
-- `surveyed`
-- `aerial-derived`
-- `mapped`
-- `approximate`
-
-Allowed confidence values:
-
-- `high`
-- `medium`
-- `low`
-
-## Railway-specific rules
-
-The Trumbo story must keep these distinct:
-
-- reclaimed terminal ground;
-- track centerlines;
-- rail yard extent;
-- passenger and freight buildings;
-- piers;
-- bridges or trestles;
-- later Navy reuse.
-
-Rail lines should be digitized from mapped or aerial evidence. Do not infer track paths merely from modern roads.
-
-## Publication threshold
-
-A period may be labeled “mapped” only when:
-
-- land geometry is present;
-- every feature has provenance fields;
-- the validator passes;
-- the source ledger identifies the relevant archival item;
-- a human has compared the web output against the source;
-- uncertainty is visible rather than hidden.
+Empty land, fill, and railway GeoJSON files remain evidence-gated working contracts. They are not displayed merely to create the appearance of a complete timeline.

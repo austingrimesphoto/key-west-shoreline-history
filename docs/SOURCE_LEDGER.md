@@ -13,6 +13,7 @@
 | `noaa-historical-harbor` | NOAA NGS | 1957-12-12; -81.81472 to -81.79148, 24.54973 to 24.57959 | Exact metadata coverage polygon | Verified |
 | `noaa-modern-2016` | NOAA NGS | 2016-04-14 through 2016-04-25; broad Key West project extent | Exact metadata coverage polygon and modern vector target | Verified |
 | `noaa-cusp-service` | NOAA NGS / ArcGIS | Live CUSP feature service | Runtime modern shoreline request | Verified service |
+| `noaa-historical-aerial-service` | NOAA OCM / NGS | Georeferenced coastal aerial imagery, 1944–1969 depending on location | Runtime exact-year catalog discovery and locked-raster image export | Verified service; imagery not orthorectified |
 | `uf-aerials` | University of Florida | Primarily 1937–1990 | Wartime and postwar frame acquisition | Catalog verified; frames pending |
 
 ## Trumbo acreage discrepancy
@@ -23,6 +24,12 @@ Two credible sources describe the terminal reclamation differently:
 - NAVFAC: a **140-acre landfill area**, created in 1908 for tracks and warehouses.
 
 These may reflect different dates, boundaries, rounding, or definitions of the developed site. The application displays both and does not silently harmonize them.
+
+## Runtime aerial publication rule
+
+The application queries NOAA's historical-imagery catalog within the Key West study envelope. It publishes only exact years returned by the service and locks every exported year to the catalog `OBJECTID` values returned for that year. Aerial years are therefore distinct map sources rather than repeated labels on a single overlay.
+
+NOAA states that these historical aerial photographs are georeferenced but not orthorectified. They are visual evidence and may retain positional error.
 
 ## NOAA vector-package acquisition status
 

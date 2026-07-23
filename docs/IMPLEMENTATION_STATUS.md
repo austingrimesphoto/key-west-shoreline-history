@@ -1,40 +1,50 @@
 # Implementation status
 
-## Completed directly in this release
+## Current map behavior
 
-- Replaced speculative timeline dates with evidence-backed anchors:
-  - 1859 Coast Survey chart;
-  - 1904 NOAA western-end survey;
-  - 1907 georeferenced Admiralty chart;
-  - 1912 NOAA waterfront survey and railway arrival;
-  - 1935 railway closure;
-  - 1957 NOAA harbor survey;
-  - circa-1965 aerial target;
-  - 2016 NOAA high-resolution shoreline reference.
-- Added exact NOAA metadata coverage footprints for 1904, 1912, 1957, and 2016.
-- Added a live georeferenced 1907 chart tile overlay with opacity control.
-- Added a live NOAA CUSP shoreline request clipped to the Key West study area.
-- Added whole-island and Trumbo Point map views.
-- Added source cards and archival 1859 chart preview.
-- Recorded the 134-acre / 140-acre Trumbo discrepancy rather than choosing one without resolving the definitions.
-- Preserved empty historical land/fill/rail layers instead of fabricating geometry.
-- Added automated validation and smoke tests.
+The timeline no longer treats narrative dates as though they were mapped periods.
 
-## Important limitation
+A selectable map state must have a unique spatial identity:
 
-The NOAA InPort records expose project metadata and direct users to the NOAA Shoreline Data Explorer for vector downloads. The downloadable shapefile packages could not be acquired through the current execution environment. Consequently:
+1. **1907 chart** — fixed Wikimaps Warper tile source, used once.
+2. **NOAA aerial years** — discovered at runtime from NOAA's historical-imagery ImageServer. The application queries the Key West study bounds, groups exact catalog records by `Year`, and constructs a locked raster mosaic from that year's returned `OBJECTID` values.
+3. **2016+ modern reference** — NOAA CUSP shoreline and the 2016 project-coverage envelope.
 
-- NOAA project envelopes are published;
-- the live CUSP comparison line is requested at runtime;
-- the actual 1904, 1912, 1957, and 2016 National Shoreline vectors are not yet bundled;
-- no false coastline polygons have been substituted.
+If NOAA returns no exact aerial records for a year, that year does not appear. If the NOAA catalog is unavailable, no guessed aerial dates are inserted.
 
-## Next direct implementation work
+## Documented but unmapped milestones
 
-1. Acquire the NOAA vector packages through NSDE.
-2. Inspect line and polygon feature classes and retain original metadata.
-3. Convert to EPSG:4326 and clip to the Key West study area.
-4. Publish the 1912 waterfront shoreline first.
-5. Georeference and trace the 1859 Coast Survey chart.
-6. Acquire dated aerial frames for circa 1935, 1940s, and 1960s.
-7. Derive compatible land polygons and incremental reclamation only after shoreline definitions are reconciled.
+The following remain visible as research milestones but are intentionally excluded from the slider:
+
+- 1859 Coast Survey chart;
+- 1904 NOAA western-end shoreline survey;
+- 1912 NOAA waterfront survey and railway arrival;
+- 1935 closure of the Overseas Railway route.
+
+They will become selectable only after their own georeferenced raster or vector is imported and reviewed.
+
+## Distinct-source safeguards
+
+- Fixed periods must have unique `overlay.identity` values.
+- Dynamically discovered aerial years receive identities of the form `noaa-aerial-YYYY`.
+- The application removes duplicate identities before building the timeline.
+- The smoke test fails if a fixed period lacks spatial evidence or reuses another period's identity.
+- The 1907 raster is not listed under 1904 or 1912.
+
+## Historical aerial method
+
+The application queries:
+
+`NOAA Imagery/3Band_RGB_8Bit_Imagery ImageServer`
+
+within the Key West study bounds for primary catalog records dated 1944–1969. Each year is exported with an ArcGIS `esriMosaicLockRaster` rule using only the raster IDs verified for that year.
+
+NOAA describes this historical imagery as georeferenced but not orthorectified. It should be interpreted as visual historical evidence, not survey-grade positional truth.
+
+## Remaining major work
+
+1. Acquire and import the actual 1904 and 1912 NOAA shoreline vectors.
+2. Georeference the 1859 Coast Survey chart with documented control and residuals.
+3. Derive period land polygons only after shoreline definitions are reconciled.
+4. Map Trumbo fill and railway geometry from reviewed sources.
+5. Add quantitative land-area and reclamation calculations.
