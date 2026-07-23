@@ -58,14 +58,7 @@
 
 .period-button[aria-current="true"] { box-shadow: 0 0 0 2px rgba(23,111,131,.18); }
 
-@media (max-width: 520px) {
-  .milestone-card { grid-template-columns: 3.25rem 1fr; }
-}
-
-.archive-map-list {
-  display: grid;
-  gap: .7rem;
-}
+.archive-map-list { display: grid; gap: .7rem; }
 
 .archive-map-card {
   display: grid;
@@ -77,23 +70,53 @@
   background: white;
 }
 
-.archive-map-year {
-  color: var(--navy);
-  font-size: 1.05rem;
-  font-weight: 800;
+.archive-map-year { color: var(--navy); font-size: 1.05rem; font-weight: 800; }
+.archive-map-card h3 { margin: 0 0 .35rem; font-size: .98rem; }
+.archive-map-card p { margin: .2rem 0; line-height: 1.4; }
+.archive-map-status { color: var(--muted); font-size: .82rem; }
+
+.alignment-controls {
+  margin: .8rem 0 1rem;
+  border: 1px solid #c49d4d;
+  border-radius: .55rem;
+  padding: .8rem;
+  background: #fff8e5;
 }
 
-.archive-map-card h3 {
-  margin: 0 0 .35rem;
-  font-size: .98rem;
+.alignment-controls legend { font-weight: 800; }
+.alignment-controls p { margin: .2rem 0 .65rem; color: #5c5138; font-size: .82rem; line-height: 1.4; }
+
+.alignment-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .35rem;
 }
 
-.archive-map-card p {
-  margin: .2rem 0;
-  line-height: 1.4;
+.alignment-grid button {
+  min-height: 2.15rem;
+  border: 1px solid #b8a06c;
+  border-radius: .35rem;
+  background: white;
+  color: var(--ink);
+  font-weight: 700;
 }
 
-.archive-map-status {
-  color: var(--muted);
-  font-size: .82rem;
+.alignment-grid button:hover { background: #f4ead0; }
+.alignment-reset { grid-column: span 4; }
+.alignment-status { display: block; margin-top: .55rem; color: var(--muted); font-size: .72rem; line-height: 1.35; }
+
+.archive-map-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; margin-top: .55rem; }
+.button-inline {
+  border: 1px solid #8fa7ae;
+  border-radius: .4rem;
+  padding: .4rem .55rem;
+  background: white;
+  color: #155f73;
+  font-weight: 700;
+}
+
+@media (max-width: 520px) {
+  .milestone-card { grid-template-columns: 3.25rem 1fr; }
+  .alignment-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .alignment-reset { grid-column: span 2; }
 }
