@@ -21,6 +21,14 @@ It includes:
 
 The map does **not** draw an imagined early coastline. Survey coverage polygons are visibly labeled as metadata envelopes, not shoreline.
 
+## Repository
+
+The public source repository is:
+
+`https://github.com/austingrimesphoto/key-west-shoreline-history`
+
+The `main` branch is the deployable source of truth. Pushes and pull requests run the GeoJSON validator, manifest smoke test, and JavaScript syntax check through GitHub Actions.
+
 ## Run locally
 
 ```bash
@@ -38,17 +46,6 @@ python3 scripts/validate_geojson.py
 python3 scripts/smoke_test.py
 node --check assets/app.js
 ```
-
-## Publish the public GitHub repository
-
-```bash
-chmod +x scripts/publish-to-github.sh
-./scripts/publish-to-github.sh
-```
-
-Target repository:
-
-`https://github.com/austingrimesphoto/key-west-shoreline-history`
 
 ## Deploy to Netlify
 
