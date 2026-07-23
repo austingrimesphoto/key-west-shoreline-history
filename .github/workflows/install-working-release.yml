@@ -1,0 +1,30 @@
+name: Install working historical GIS release
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".bootstrap/project-v2.tar.gz.b64"
+      - ".github/workflows/install-working-release.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Expand corrected release
+        run: |
+          base64 --decode .bootstrap/project-v2.tar.gz.b64 > /tmp/key-west-working-release.tar.gz
+          tar -xzf /tmp/key-west-working-release.tar.gz -C .
+          rm -rf .bootstrap
+          rm -f .github/workflows/install-working-release.yml
+      - name: Commit working release
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Install working Key West historical GIS release"
+          git push
