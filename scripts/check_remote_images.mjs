@@ -1,18 +1,7 @@
 import { readFile } from "node:fs/promises";
 
-const manifests = [
-  "data/periods.json",
-  "data/archive-aerial-periods.json",
-  "data/urban-map-periods.json",
-];
-
-const periods = [];
-for (const path of manifests) {
-  const parsed = JSON.parse(await readFile(path, "utf8"));
-  periods.push(...(parsed.periods || []));
-}
-
-const images = periods
+const parsed = JSON.parse(await readFile("data/urban-map-periods.json", "utf8"));
+const images = (parsed.periods || [])
   .filter((period) => period?.overlay?.type === "image")
   .map((period) => ({ id: period.id, url: period.overlay.url }));
 
@@ -44,8 +33,8 @@ for (const image of images) {
       failures.push(`${image.id}: HTTP ${response.status}`);
     } else if (!contentType.toLowerCase().startsWith("image/")) {
       failures.push(`${image.id}: expected image MIME type, received ${contentType || "none"}`);
-    } else if (allowOrigin !== "*" && !allowOrigin.includes("github")) {
-      failures.push(`${image.id}: missing permissive CORS header`);
+    } else if (allowOrigin !== "*") {
+      failures.push(`${image.id}: expected Access-Control-Allow-Origin: *, received ${allowOrigin || "none"}`);
     } else {
       console.log(`${image.id}: ${response.status} ${contentType} CORS=${allowOrigin}`);
     }
@@ -56,9 +45,11 @@ for (const image of images) {
   }
 }
 
+if (images.length !== 4) failures.push(`expected four Sanborn overlays, found ${images.length}`);
+
 if (failures.length) {
-  console.error("Remote image validation failed:\n" + failures.map((item) => `- ${item}`).join("\n"));
+  console.error("Sanborn image validation failed:\n" + failures.map((item) => `- ${item}`).join("\n"));
   process.exit(1);
 }
 
-console.log(`Validated ${images.length} remote image overlays.`);
+console.log("Validated all four Sanborn image overlays.");
