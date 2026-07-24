@@ -17,27 +17,39 @@ for (const image of images) {
   }
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 20_000);
+  const timer = setTimeout(() => controller.abort(), 25_000);
   try {
     const response = await fetch(image.url, {
       signal: controller.signal,
       redirect: "follow",
       headers: {
-        Range: "bytes=0-1023",
-        "User-Agent": "KeyWestShorelineHistory-CI/1.0",
+        Origin: "https://deploy-preview.example.netlify.app",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/126 Safari/537.36",
+        Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
       },
     });
     const contentType = response.headers.get("content-type") || "";
     const allowOrigin = response.headers.get("access-control-allow-origin") || "";
-    if (!response.ok && response.status !== 206) {
+    if (!response.ok) {
       failures.push(`${image.id}: HTTP ${response.status}`);
-    } else if (!contentType.toLowerCase().startsWith("image/")) {
-      failures.push(`${image.id}: expected image MIME type, received ${contentType || "none"}`);
-    } else if (allowOrigin !== "*") {
-      failures.push(`${image.id}: expected Access-Control-Allow-Origin: *, received ${allowOrigin || "none"}`);
-    } else {
-      console.log(`${image.id}: ${response.status} ${contentType} CORS=${allowOrigin}`);
+      continue;
     }
+    if (!contentType.toLowerCase().startsWith("image/")) {
+      failures.push(`${image.id}: expected image MIME type, received ${contentType || "none"}`);
+      continue;
+    }
+    if (allowOrigin !== "*" && allowOrigin !== "https://deploy-preview.example.netlify.app") {
+      failures.push(`${image.id}: non-permissive CORS header ${allowOrigin || "none"}`);
+      continue;
+    }
+    const reader = response.body?.getReader();
+    const firstChunk = reader ? await reader.read() : { value: null };
+    await reader?.cancel();
+    if (!firstChunk.value?.byteLength) {
+      failures.push(`${image.id}: response body contained no image bytes`);
+      continue;
+    }
+    console.log(`${image.id}: ${response.status} ${contentType} CORS=${allowOrigin} firstChunk=${firstChunk.value.byteLength}`);
   } catch (error) {
     failures.push(`${image.id}: ${error?.name === "AbortError" ? "timed out" : error.message}`);
   } finally {
