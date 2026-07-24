@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check manifests, fixed map states, archival aerials, and optional NOAA behavior."""
+"""Check manifests, fixed map states, archival aerials, urban maps, and optional NOAA behavior."""
 
 from __future__ import annotations
 
@@ -17,8 +17,9 @@ def fail(message: str) -> None:
 
 manifest = json.loads((ROOT / "data/periods.json").read_text(encoding="utf-8"))
 archive_aerials = json.loads((ROOT / "data/archive-aerial-periods.json").read_text(encoding="utf-8"))
+urban_maps = json.loads((ROOT / "data/urban-map-periods.json").read_text(encoding="utf-8"))
 archive_sources = json.loads((ROOT / "data/archive-sources.json").read_text(encoding="utf-8"))
-periods = [*manifest["periods"], *archive_aerials.get("periods", [])]
+periods = [*manifest["periods"], *urban_maps.get("periods", []), *archive_aerials.get("periods", [])]
 milestones = manifest["milestones"]
 archive_maps = manifest.get("archiveMaps", [])
 aerial = manifest["aerialDiscovery"]
@@ -32,8 +33,8 @@ source_ids = {item["id"] for item in sources}
 coverage_ids = {item["properties"]["coverage_id"] for item in coverage["features"]}
 period_ids = [period["id"] for period in periods]
 
-if len(periods) < 8:
-    fail(f"Expected at least eight fixed map states, found {len(periods)}")
+if len(periods) < 12:
+    fail(f"Expected at least twelve fixed map states, found {len(periods)}")
 if len(set(period_ids)) != len(period_ids):
     fail("Fixed period IDs must be unique")
 if set(period_ids) & {milestone["id"] for milestone in milestones}:
@@ -62,6 +63,8 @@ for period in periods:
         image_url = str(overlay.get("url", ""))
         if not image_url.startswith("https://"):
             fail(f"{period['id']}: image overlay must load from a direct HTTPS image URL")
+        if "commons.wikimedia.org/wiki/Special:Redirect" in image_url:
+            fail(f"{period['id']}: page-level Wikimedia redirects are forbidden")
         if "floridamemory.com/fpc/" in image_url or "/.netlify/functions/historical-image" in image_url:
             fail(f"{period['id']}: blocked Florida Memory image proxy must not be used")
     for source_id in period.get("sourceIds", []):
@@ -70,8 +73,8 @@ for period in periods:
     if period.get("coverageId") and period["coverageId"] not in coverage_ids:
         fail(f"{period['id']}: unknown coverage {period['coverageId']}")
 
-if approximate_count < 6:
-    fail(f"Expected at least six experimental historical image overlays, found {approximate_count}")
+if approximate_count < 10:
+    fail(f"Expected at least ten experimental historical image overlays, found {approximate_count}")
 if len(set(identities)) != len(identities):
     fail("Selectable fixed periods reuse the same overlay identity")
 
@@ -112,8 +115,9 @@ contracts = {
     "LOWER_KEYS_BOUNDS": app,
     "APP_MAX_BOUNDS": app,
     'status: "legacy-only"': app,
-    "archive-aerial-periods.json?v=20260723-7": app,
-    "archive-sources.json?v=20260723-7": app,
+    "archive-aerial-periods.json?v=20260723-9": app,
+    "urban-map-periods.json?v=20260723-9": app,
+    "archive-sources.json?v=20260723-9": app,
     'overlay.type === "image"': app,
     "setCoordinates": app,
     "adjustAlignment": app,
@@ -133,6 +137,8 @@ if "fetchJsonCandidates" in app:
     fail("Production NOAA discovery must not fall back to a cross-origin browser request")
 if "setTimeout(refreshAerialPeriods" in app:
     fail("NOAA live-mosaic diagnostics must not run automatically")
+if "Special:Redirect/file" in app:
+    fail("Runtime code must not override manifests with page-level image redirects")
 if "fit(period?.focusBounds" in app or "fit(period.focusBounds" in app:
     fail("Changing periods must not fit the camera to regional source extents")
 if "function selectPeriod(index, updateUrl = true, refit = false)" not in app:
