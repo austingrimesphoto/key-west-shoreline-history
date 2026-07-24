@@ -79,9 +79,46 @@ function transformedCoordinates(overlay) {
   });
 }
 
-function installEvidenceOverlay(overlay) {
+function preloadImageOverlay(url, timeoutMs = 20000) {
+  if (state.loadedImageUrls.has(url)) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const timer = window.setTimeout(() => {
+      image.src = "";
+      reject(new Error("image request timed out"));
+    }, timeoutMs);
+    const finish = (callback) => {
+      window.clearTimeout(timer);
+      image.onload = null;
+      image.onerror = null;
+      callback();
+    };
+    image.crossOrigin = "anonymous";
+    image.decoding = "async";
+    image.onload = () => finish(async () => {
+      try { if (image.decode) await image.decode(); } catch { /* the load event already verified the image */ }
+      state.loadedImageUrls.add(url);
+      resolve();
+    });
+    image.onerror = () => finish(() => reject(new Error("image host returned a browser load failure")));
+    image.src = url;
+  });
+}
+
+async function installEvidenceOverlay(overlay, generation) {
+  if (!overlay || overlay.type === "modern-line") {
+    if (generation === state.overlayLoadGeneration) removeActiveEvidence();
+    return true;
+  }
+
+  if (overlay.type === "image") {
+    $("overlay-status").textContent = `Loading ${overlay.title}…`;
+    await preloadImageOverlay(overlay.url);
+    if (generation !== state.overlayLoadGeneration) return false;
+  }
+
+  if (generation !== state.overlayLoadGeneration) return false;
   removeActiveEvidence();
-  if (!overlay || overlay.type === "modern-line") return;
   const ids = evidenceLayerIds(overlay.identity);
   const beforeId = map.getStyle().layers.find((layer) => layer.type === "symbol")?.id;
   if (overlay.type === "xyz") {
@@ -96,6 +133,8 @@ function installEvidenceOverlay(overlay) {
   }
   map.addLayer({ id: ids.layerId, type: "raster", source: ids.sourceId, paint: { "raster-opacity": Number($("evidence-opacity").value) / 100, "raster-fade-duration": 0, "raster-resampling": "linear" } }, beforeId);
   state.activeEvidence = { ...ids, identity: overlay.identity, type: overlay.type };
+  $("overlay-status").textContent = overlay.title;
+  return true;
 }
 
 function setLayerVisibility(layerId, visible) {
@@ -188,19 +227,23 @@ function renderPeriodText(period) {
   $("data-note").textContent = note;
 }
 
-function renderPeriod() {
+async function renderPeriod() {
   if (!state.periods.length) return;
   const period = state.periods[state.index];
+  const generation = ++state.overlayLoadGeneration;
   renderPeriodText(period);
   updateEvidenceControls(period);
   if (!state.mapReady) return;
+  clearMapMessage();
   try {
-    clearMapMessage();
-    installEvidenceOverlay(period.overlay);
+    const installed = await installEvidenceOverlay(period.overlay, generation);
+    if (!installed || generation !== state.overlayLoadGeneration) return;
     updateCoverageFilter(period);
     setEvidenceOpacity($("evidence-opacity").value);
     updateLayerVisibility();
   } catch (error) {
-    showMapMessage(`The ${period.shortLabel} evidence layer could not be displayed: ${error.message}`);
+    if (generation !== state.overlayLoadGeneration) return;
+    $("overlay-status").textContent = "Image unavailable";
+    showMapMessage(`The ${period.shortLabel} evidence image could not be loaded. ${error.message}. The previous map remains visible.`);
   }
 }
