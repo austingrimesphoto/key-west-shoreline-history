@@ -1,2 +1,2 @@
-2026-07-23.7
-Historical aerials load directly from Wikimedia-hosted archival files; the Florida Memory Netlify proxy and its 502 failure path are removed.
+2026-07-23.10
+Turn-of-the-century image overlays preload and decode before replacement; stale image requests cannot replace the current period or surface repeated AJAX cancellation errors.
