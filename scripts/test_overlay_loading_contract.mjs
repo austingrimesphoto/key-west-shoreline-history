@@ -20,10 +20,13 @@ for (const [text, token] of required) {
   if (!text.includes(token)) throw new Error(`Missing overlay loading contract: ${token}`);
 }
 
-const removeIndex = map.indexOf("removeActiveEvidence();");
-const preloadIndex = map.indexOf("await preloadImageOverlay(overlay.url)");
-if (removeIndex >= 0 && removeIndex < preloadIndex) {
-  throw new Error("Active evidence must not be removed before the replacement image preloads.");
+const installerStart = map.indexOf("async function installEvidenceOverlay");
+const installerEnd = map.indexOf("function setLayerVisibility", installerStart);
+const installer = map.slice(installerStart, installerEnd);
+const preloadIndex = installer.indexOf("await preloadImageOverlay(overlay.url)");
+const removeIndex = installer.indexOf("removeActiveEvidence();", preloadIndex);
+if (installerStart < 0 || installerEnd < 0 || preloadIndex < 0 || removeIndex < preloadIndex) {
+  throw new Error("Replacement images must preload before active evidence is removed.");
 }
 
 if (!map.includes("async function renderPeriod()")) {
