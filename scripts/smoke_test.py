@@ -115,10 +115,14 @@ contracts = {
     "LOWER_KEYS_BOUNDS": app,
     "APP_MAX_BOUNDS": app,
     'status: "legacy-only"': app,
-    "archive-aerial-periods.json?v=20260723-9": app,
-    "urban-map-periods.json?v=20260723-9": app,
-    "archive-sources.json?v=20260723-9": app,
+    "archive-aerial-periods.json?v=20260723-10": app,
+    "urban-map-periods.json?v=20260723-10": app,
+    "archive-sources.json?v=20260723-10": app,
     'overlay.type === "image"': app,
+    "preloadImageOverlay": app,
+    "overlayLoadGeneration": app,
+    "loadedImageUrls": app,
+    "The previous map remains visible.": app,
     "setCoordinates": app,
     "adjustAlignment": app,
     "alignment-controls": index,
@@ -159,6 +163,6 @@ for required in ("3Band_RGB_8Bit_Imagery", "3Band_CIR_8Bit_Imagery", "IR_Band_8B
 print(
     "Smoke test passed: "
     f"{len(periods)} fixed states ({approximate_count} adjustable historical images), "
-    "direct archival image URLs, NOAA live mosaics treated as a documented coverage gap, "
+    "serialized image loading, direct archival image URLs, NOAA live mosaics treated as a documented coverage gap, "
     f"{len(milestones)} unmapped milestones, {len(archive_maps)} archive records, {len(sources)} sources."
 )

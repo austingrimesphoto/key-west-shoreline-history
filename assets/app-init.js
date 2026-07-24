@@ -31,12 +31,12 @@ async function initializeData() {
   try {
     $("availability-note").textContent = "Loading locally stored historical map states…";
     const [manifest, sources, coverage, archiveAerials, urbanMaps, archiveSources] = await Promise.all([
-      fetchJson("./data/periods.json?v=20260723-9"),
-      fetchJson("./data/sources.json?v=20260723-9"),
-      fetchJson("./data/survey-coverage.geojson?v=20260723-9"),
-      fetchJson("./data/archive-aerial-periods.json?v=20260723-9"),
-      fetchJson("./data/urban-map-periods.json?v=20260723-9"),
-      fetchJson("./data/archive-sources.json?v=20260723-9"),
+      fetchJson("./data/periods.json?v=20260723-10"),
+      fetchJson("./data/sources.json?v=20260723-10"),
+      fetchJson("./data/survey-coverage.geojson?v=20260723-10"),
+      fetchJson("./data/archive-aerial-periods.json?v=20260723-10"),
+      fetchJson("./data/urban-map-periods.json?v=20260723-10"),
+      fetchJson("./data/archive-sources.json?v=20260723-10"),
     ]);
     manifest.periods = [
       ...manifest.periods,
@@ -95,7 +95,10 @@ function startMap(dataReady) {
   });
   map.on("error", (event) => {
     const message = event?.error?.message || "";
-    if (message && !message.includes("Failed to fetch")) showMapMessage(message);
+    const normalized = message.toLowerCase();
+    const expectedCancellation = normalized.includes("ajaxerror") && normalized.includes("load failed");
+    const genericFetchFailure = normalized.includes("failed to fetch");
+    if (message && !expectedCancellation && !genericFetchFailure) showMapMessage(message);
   });
 }
 
