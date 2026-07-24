@@ -30,6 +30,8 @@ const state = {
   aerialPeriods: [],
   aerialDiscovery: { status: "not-checked", years: 0, frames: 0 },
   alignment: {},
+  overlayLoadGeneration: 0,
+  loadedImageUrls: new Set(),
 };
 
 let map = null;
