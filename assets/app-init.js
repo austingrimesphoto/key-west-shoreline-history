@@ -31,25 +31,16 @@ async function initializeData() {
   try {
     $("availability-note").textContent = "Loading locally stored historical map states…";
     const [manifest, sources, coverage, archiveAerials, urbanMaps, archiveSources] = await Promise.all([
-      fetchJson("./data/periods.json?v=20260723-8"),
-      fetchJson("./data/sources.json?v=20260723-8"),
-      fetchJson("./data/survey-coverage.geojson?v=20260723-8"),
-      fetchJson("./data/archive-aerial-periods.json?v=20260723-8"),
-      fetchJson("./data/urban-map-periods.json?v=20260723-8"),
-      fetchJson("./data/archive-sources.json?v=20260723-8"),
+      fetchJson("./data/periods.json?v=20260723-9"),
+      fetchJson("./data/sources.json?v=20260723-9"),
+      fetchJson("./data/survey-coverage.geojson?v=20260723-9"),
+      fetchJson("./data/archive-aerial-periods.json?v=20260723-9"),
+      fetchJson("./data/urban-map-periods.json?v=20260723-9"),
+      fetchJson("./data/archive-sources.json?v=20260723-9"),
     ]);
-    const urbanPeriods = (urbanMaps.periods || []).map((period) => period.id === "1912-sanborn"
-      ? {
-          ...period,
-          overlay: {
-            ...period.overlay,
-            url: "https://commons.wikimedia.org/wiki/Special:Redirect/file/Sanborn_Fire_Insurance_Map_from_Key_West%2C_Monroe_County%2C_Florida%2C_1912%2C_Plate_0001.jpg?width=1920",
-          },
-        }
-      : period);
     manifest.periods = [
       ...manifest.periods,
-      ...urbanPeriods,
+      ...(urbanMaps.periods || []),
       ...(archiveAerials.periods || []),
     ];
     state.manifest = manifest;
